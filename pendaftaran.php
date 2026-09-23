@@ -101,12 +101,16 @@ include __DIR__ . '/includes/header.php';
               <label>9. Kategori Santri</label>
               <div class="radio-group" role="radiogroup" aria-label="Kategori Santri">
                 <label class="radio-item">
-                  <input type="radio" name="kategori_santri" value="Mukim" required />
-                  <span>Santri Mukim</span>
+                  <span class="radio-mark">
+                    <input type="radio" name="kategori_santri" value="Mukim" required />
+                  </span>
+                  <span class="radio-text">Santri Mukim</span>
                 </label>
                 <label class="radio-item">
-                  <input type="radio" name="kategori_santri" value="Non Mukim" required />
-                  <span>Santri Non Mukim</span>
+                  <span class="radio-mark">
+                    <input type="radio" name="kategori_santri" value="Non Mukim" required />
+                  </span>
+                  <span class="radio-text">Santri Non Mukim</span>
                 </label>
               </div>
             </div>
@@ -187,21 +191,21 @@ include __DIR__ . '/includes/header.php';
           <div class="sub-block">
             <h4>15. Nama Wali</h4>
             <div class="field">
-              <input type="text" name="nama_wali" placeholder="Nama wali" required />
+              <input type="text" name="nama_wali" placeholder="Nama wali" data-optional="true" />
             </div>
           </div>
 
           <div class="sub-block">
             <h4>16. Alamat Wali</h4>
             <div class="field">
-              <textarea name="alamat_wali" placeholder="Alamat lengkap wali" required></textarea>
+              <textarea name="alamat_wali" placeholder="Alamat lengkap wali" data-optional="true"></textarea>
             </div>
           </div>
 
           <div class="sub-block">
             <h4>17. Pekerjaan</h4>
             <div class="field">
-              <input type="text" name="pekerjaan_wali" placeholder="Pekerjaan wali" required />
+              <input type="text" name="pekerjaan_wali" placeholder="Pekerjaan wali" data-optional="true" />
             </div>
           </div>
 
@@ -217,36 +221,42 @@ include __DIR__ . '/includes/header.php';
           <div class="upload-grid">
             <label class="upload-box">
               <span>Akta Kelahiran</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="akta" accept=".pdf,image/*" required />
               <small>Upload file PDF/JPG/PNG</small>
             </label>
 
             <label class="upload-box">
               <span>Kartu Keluarga</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="kk" accept=".pdf,image/*" required />
               <small>Upload file PDF/JPG/PNG</small>
             </label>
 
             <label class="upload-box">
               <span>Sertifikat / Prestasi</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="sertifikat" accept=".pdf,image/*" />
               <small>Upload file PDF/JPG/PNG</small>
             </label>
 
             <label class="upload-box">
               <span>Rapor / Nilai</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="rapor" accept=".pdf,image/*" required />
               <small>Upload file PDF/JPG/PNG</small>
             </label>
 
             <label class="upload-box">
               <span>Foto Siswa</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="foto" accept="image/*" required />
               <small>Upload foto terbaru</small>
             </label>
 
             <label class="upload-box">
               <span>Dokumen Lainnya</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="dokumen_lain" accept=".pdf,image/*" />
               <small>Upload dokumen tambahan</small>
             </label>
@@ -289,8 +299,9 @@ include __DIR__ . '/includes/header.php';
           </div>
 
           <div class="upload-grid upload-grid-mt">
-            <label class="upload-box">
+            <label class="upload-box upload-box-single">
               <span>Bukti Pembayaran</span>
+              <div class="upload-preview" aria-live="polite"></div>
               <input type="file" name="bukti_pembayaran" accept=".pdf,image/*" required />
               <small>Upload bukti transfer atau pembayaran</small>
             </label>
@@ -327,6 +338,33 @@ include __DIR__ . '/includes/header.php';
   var paymentInput = form.querySelector('input[name="bukti_pembayaran"]');
   var currentStep = 0;
 
+  function isOptionalField(field) {
+    return field.dataset && field.dataset.optional === 'true';
+  }
+
+  function isFieldValid(field) {
+    if (field.type === 'file') {
+      if (field.required && !field.dataset.optional) {
+        return !!(field.files && field.files.length > 0);
+      }
+      return true;
+    }
+
+    if (field.disabled || field.readOnly || isOptionalField(field)) {
+      return !field.required || (field.value !== undefined && field.value.trim() === '') || field.checkValidity();
+    }
+
+    if (field.value === undefined) {
+      return true;
+    }
+
+    if (field.required && field.value.trim() === '') {
+      return false;
+    }
+
+    return field.checkValidity();
+  }
+
   function getFields(stepEl) {
     return Array.prototype.slice.call(stepEl.querySelectorAll('input, select, textarea')).filter(function (field) {
       return !field.disabled && !field.readOnly;
@@ -336,10 +374,11 @@ include __DIR__ . '/includes/header.php';
   function isStepComplete(stepEl) {
     var fields = getFields(stepEl);
     return fields.every(function (field) {
-      if (field.type === 'file') {
-        return !!(field.files && field.files.length > 0);
+      if (isOptionalField(field) && field.value.trim() === '') {
+        return true;
       }
-      return field.checkValidity() && field.value.trim() !== '';
+
+      return isFieldValid(field);
     });
   }
 
@@ -366,9 +405,7 @@ include __DIR__ . '/includes/header.php';
 
       var valid = true;
       fields.forEach(function (field) {
-        var ok = field.type === 'file'
-          ? !!(field.files && field.files.length > 0)
-          : field.checkValidity() && field.value.trim() !== '';
+        var ok = isFieldValid(field);
 
         if (!ok) {
           valid = false;
@@ -493,6 +530,32 @@ include __DIR__ . '/includes/header.php';
     if (field.type === 'file') return;
     field.addEventListener('input', saveDraft);
     field.addEventListener('change', saveDraft);
+  });
+
+  function setupFilePreview(input) {
+    var preview = input.closest('.upload-box').querySelector('.upload-preview');
+    if (!preview) return;
+
+    input.addEventListener('change', function () {
+      preview.innerHTML = '';
+      if (!input.files || !input.files.length) return;
+
+      var file = input.files[0];
+      var objectUrl = URL.createObjectURL(file);
+
+      if (file.type && file.type.indexOf('image/') === 0) {
+        preview.innerHTML = '<img src="' + objectUrl + '" alt="Preview file" />';
+        return;
+      }
+
+      var ext = (file.name.split('.').pop() || 'file').toUpperCase();
+      preview.innerHTML = '<div class="preview-file"><span class="preview-badge">' + ext + '</span><span class="preview-name">' + file.name + '</span></div>';
+      setTimeout(function () { URL.revokeObjectURL(objectUrl); }, 0);
+    });
+  }
+
+  form.querySelectorAll('input[type="file"]').forEach(function (input) {
+    setupFilePreview(input);
   });
 
   if (paymentInput) {
