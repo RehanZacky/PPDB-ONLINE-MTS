@@ -36,16 +36,6 @@ include __DIR__ . '/includes/header.php';
       serta malam hari, dalam satu pengasuhan.
     </p>
 
-    <?php if ($aktif && $status === 'buka'): ?>
-      <div class="mundur" data-batas="<?= e($aktif['selesai']) ?>T23:59:59+07:00" role="timer">
-        <div><b data-hari>--</b><span>hari</span></div>
-        <div><b data-jam>--</b><span>jam</span></div>
-        <div><b data-menit>--</b><span>menit</span></div>
-        <div><b data-detik>--</b><span>detik</span></div>
-      </div>
-      <p class="mundur-habis" data-habis hidden><?= e($aktif['nama']) ?> sudah ditutup. Silakan hubungi panitia.</p>
-    <?php endif; ?>
-
     <div class="hero-tbl">
       <a class="tbl tbl-putih" href="<?= e(link_daftar()) ?>"<?= link_daftar() === '#' ? '' : ' target="_blank" rel="noopener"' ?>>Daftar sekarang</a>
       <a class="tbl tbl-terang" href="<?= e(wa()) ?>" target="_blank" rel="noopener">

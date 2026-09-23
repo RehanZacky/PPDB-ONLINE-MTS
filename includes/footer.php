@@ -1,17 +1,5 @@
 </main>
 
-<!-- ajakan terakhir -->
-<section class="blok blok-hijau">
-  <div class="wadah ajakan">
-    <h2>Masih ragu? Datang dan lihat sendiri</h2>
-    <p>Panitia membuka kunjungan wali setiap hari kerja. Anda bisa melihat asrama, dapur, dan ruang kelas, lalu berbincang dengan pengasuh sebelum memutuskan.</p>
-    <div class="hero-tbl">
-      <a class="tbl tbl-putih" href="<?= e(link_daftar()) ?>"<?= link_daftar() === '#' ? '' : ' target="_blank" rel="noopener"' ?>>Daftar sekarang</a>
-      <a class="tbl tbl-terang" href="<?= e(wa('Assalamualaikum, saya ingin menjadwalkan kunjungan ke pesantren.')) ?>" target="_blank" rel="noopener">Jadwalkan kunjungan</a>
-    </div>
-  </div>
-</section>
-
 <!-- kontak panitia -->
 <section class="blok blok-mint" id="kontak">
   <div class="wadah">
@@ -90,33 +78,6 @@
       tombol.setAttribute("aria-label", buka ? "Tutup menu" : "Buka menu");
     });
   }
-
-  /* hitung mundur penutupan gelombang */
-  var dua = function (n) { return n < 10 ? "0" + n : String(n); };
-
-  Array.prototype.forEach.call(document.querySelectorAll(".mundur[data-batas]"), function (kotak) {
-    var habis = kotak.parentNode.querySelector("[data-habis]");
-    var batas = new Date(kotak.getAttribute("data-batas")).getTime();
-
-    var isi = function () {
-      var sisa = batas - Date.now();
-      if (isNaN(batas) || sisa <= 0) {
-        kotak.hidden = true;
-        if (habis) habis.hidden = false;
-        return true;
-      }
-      var d = Math.floor(sisa / 1000);
-      kotak.querySelector("[data-hari]").textContent = Math.floor(d / 86400);
-      kotak.querySelector("[data-jam]").textContent = dua(Math.floor(d / 3600) % 24);
-      kotak.querySelector("[data-menit]").textContent = dua(Math.floor(d / 60) % 60);
-      kotak.querySelector("[data-detik]").textContent = dua(d % 60);
-      return false;
-    };
-
-    if (!isi()) {
-      var jam = setInterval(function () { if (isi()) clearInterval(jam); }, 1000);
-    }
-  });
 
   /* tab biaya */
   var tabs = Array.prototype.slice.call(document.querySelectorAll("[role='tab']"));

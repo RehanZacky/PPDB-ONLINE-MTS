@@ -31,9 +31,9 @@ $SITE = [
     'maps'          => 'https://maps.google.com/?q=MTs+Tahfidh+Roudlotul+Quran',
     'jam_layanan'   => 'Senin – Sabtu, 08.00 – 15.00 WIB',
 
-    // Link formulir pendaftaran. Isi URL Google Form, atau biarkan '#' untuk
-    // mengarahkan calon pendaftar ke WhatsApp.
-    'link_formulir' => '#',
+    // Link formulir pendaftaran. Jika diisi, tombol daftar akan mengarah ke halaman
+    // formulir lokal agar calon wali bisa mengisi data pendaftaran sendiri.
+    'link_formulir' => 'pendaftaran.php',
 
     // Angka ringkas yang tampil di halaman depan SPMB
     'kuota'         => 40,

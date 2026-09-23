@@ -13,10 +13,11 @@ $PAGE = array_merge([
 ], $PAGE ?? []);
 
 $HALAMAN = [
-    'index'     => ['Beranda SPMB', 'index.php'],
-    'gelombang' => ['Gelombang', 'gelombang.php'],
-    'alur'      => ['Alur & Syarat', 'alur.php'],
-    'biaya'     => ['Biaya', 'biaya.php'],
+    'index'       => ['Beranda SPMB', 'index.php'],
+    'pendaftaran' => ['Pendaftaran', 'pendaftaran.php'],
+    'gelombang'   => ['Gelombang', 'gelombang.php'],
+    'alur'        => ['Alur & Syarat', 'alur.php'],
+    'biaya'       => ['Biaya', 'biaya.php'],
 ];
 ?>
 <!DOCTYPE html>
