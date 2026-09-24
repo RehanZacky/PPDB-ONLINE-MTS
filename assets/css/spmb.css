@@ -382,6 +382,8 @@ h1, h2, h3, h4 {
 
 .upload-grid-mt {
   margin-top: 1rem;
+  grid-template-columns: 1fr;
+  justify-items: start;
 }
 
 .submit-wrap {
@@ -420,6 +422,7 @@ h1, h2, h3, h4 {
   color: var(--redup);
 }
 
+.step-item.completed small,
 .step-item.active small {
   color: var(--hijau);
   font-weight: 700;
@@ -436,6 +439,7 @@ h1, h2, h3, h4 {
   font-weight: 800;
 }
 
+.step-item.completed .step-dot,
 .step-item.active .step-dot {
   background: var(--hijau);
   color: #fff;
@@ -446,6 +450,10 @@ h1, h2, h3, h4 {
   height: 2px;
   background: #dbe4ea;
   margin-top: 17px;
+}
+
+.step-line.active {
+  background: var(--hijau);
 }
 
 .form-step {
@@ -493,7 +501,9 @@ h1, h2, h3, h4 {
 
 .upload-box-single {
   max-width: 420px;
-  margin: 0 auto;
+  margin: 0;
+  width: 100%;
+  align-items: flex-start;
 }
 
 .upload-box:hover {

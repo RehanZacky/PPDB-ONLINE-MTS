@@ -46,34 +46,6 @@ include __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<!-- ============ ANGKA RINGKAS ============ -->
-<section class="blok">
-  <div class="wadah">
-    <div class="angka">
-      <div>
-        <span class="bulat" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"/><path d="M7 11v5c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5v-5"/></svg></span>
-        <b><?= (int) $SITE['kuota'] ?></b>
-        <span>Kuota santri baru</span>
-      </div>
-      <div>
-        <span class="bulat" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></span>
-        <b><?= (int) $SITE['rombel'] ?></b>
-        <span>Rombongan belajar</span>
-      </div>
-      <div>
-        <span class="bulat" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M8 7.5h7M8 11h5"/></svg></span>
-        <b><?= (int) $SITE['target_juz'] ?> juz</b>
-        <span>Target hafalan tiga tahun</span>
-      </div>
-      <div>
-        <span class="bulat" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.2 6-5.2s6 2 6 5.2"/><path d="M16.5 11.5a3 3 0 1 0-1.6-5.5M18 20c0-2.2-.9-3.9-2.4-4.8"/></svg></span>
-        <b><?= e($SITE['rasio']) ?></b>
-        <span>Rasio ustaz &amp; santri</span>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ============ DUA JALUR ============ -->
 <section class="blok blok-mint">
   <div class="wadah">
