@@ -47,6 +47,15 @@ body {
   font-size: 16px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+input, select, textarea, button {
+  font: inherit;
+}
+
+input, select, textarea {
+  font-size: 16px;
 }
 
 img { max-width: 100%; height: auto; display: block; }
@@ -639,6 +648,75 @@ h1, h2, h3, h4 {
   .signature-row,
   .upload-grid {
     grid-template-columns: 1fr;
+  }
+
+  .step-indicator {
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+
+  .step-line {
+    display: none;
+  }
+
+  .step-item {
+    min-width: 90px;
+  }
+
+  .hero-tbl,
+  .step-actions,
+  .submit-wrap {
+    justify-content: center;
+  }
+
+  .step-actions.split {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .75rem;
+  }
+
+  .prev-step,
+  .next-step,
+  .submit-confirm {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .merek {
+    gap: .6rem;
+  }
+
+  .merek b {
+    font-size: .82rem;
+  }
+
+  .merek > span > span {
+    display: none;
+  }
+
+  .form-panel {
+    padding: 1rem;
+  }
+
+  .radio-group {
+    grid-template-columns: 1fr;
+  }
+
+  .radio-item {
+    min-height: 52px;
+  }
+
+  .kepala h2 {
+    font-size: 1.6rem;
+  }
+
+  .tbl {
+    width: 100%;
+  }
+
+  .hero-tbl {
+    flex-direction: column;
   }
 }
 
