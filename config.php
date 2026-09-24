@@ -27,8 +27,8 @@ $SITE = [
     'wa2_tampil'    => '0812-3456-7891',
     'wa2_nama'      => 'Ustazah Aisyah',
     'email'         => 'spmb@mtstahfidhroudlotulquran.sch.id',
-    'alamat'        => 'Jl. Raya Pesantren No. 12, Kec. Wonokromo, Surabaya, Jawa Timur 60243',
-    'maps'          => 'https://maps.google.com/?q=MTs+Tahfidh+Roudlotul+Quran',
+    'alamat'        => 'Ngampelsari, Kec. Candi, Kabupaten Sidoarjo, Jawa Timur 61271',
+    'maps'          => 'https://www.google.com/maps/search/?api=1&query=PP.+ROUDLOTUL+QUR%27AN+-+2+NGAMPELSARI',
     'jam_layanan'   => 'Senin – Sabtu, 08.00 – 15.00 WIB',
 
     // Link formulir pendaftaran. Jika diisi, tombol daftar akan mengarah ke halaman
