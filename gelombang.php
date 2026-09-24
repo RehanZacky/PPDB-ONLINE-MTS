@@ -21,22 +21,28 @@ include __DIR__ . '/includes/header.php';
       <p>Pendaftaran dibuka tiga kali. Potongan biaya mengecil di setiap gelombang berikutnya, dan gelombang bisa ditutup lebih cepat bila kuota sudah penuh.</p>
     </div>
 
-    <?php if ($aktif && $status === 'buka'): ?>
-      <div class="kartu kartu-sorot" style="max-width:40rem;margin-inline:auto;text-align:center">
-        <p class="label" style="background:var(--hijau);color:#fff"><?= e($aktif['nama']) ?> sedang dibuka</p>
-        <h3 style="font-size:1.35rem">Ditutup <?= e(tgl($aktif['selesai'])) ?></h3>
-        <div class="mundur" data-batas="<?= e($aktif['selesai']) ?>T23:59:59+07:00" role="timer" style="margin-top:1.2rem">
-          <div style="background:var(--mint);border-color:var(--mint)"><b data-hari style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">hari</span></div>
-          <div style="background:var(--mint);border-color:var(--mint)"><b data-jam style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">jam</span></div>
-          <div style="background:var(--mint);border-color:var(--mint)"><b data-menit style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">menit</span></div>
-          <div style="background:var(--mint);border-color:var(--mint)"><b data-detik style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">detik</span></div>
-        </div>
-        <p class="mundur-habis" data-habis hidden style="color:var(--redup)">Gelombang ini sudah ditutup.</p>
-        <p style="margin-top:1.4rem">
-          <a class="tbl tbl-utama" href="<?= e(link_daftar()) ?>"<?= link_daftar() === '#' ? '' : ' target="_blank" rel="noopener"' ?>>Daftar sekarang</a>
-        </p>
+    <?php $timer_schedule = array_map(function ($g) {
+      return [
+        'nama' => $g['nama'],
+        'mulai' => $g['mulai'] . 'T00:00:00+07:00',
+        'selesai' => $g['selesai'] . 'T23:59:59+07:00',
+      ];
+    }, $GELOMBANG); ?>
+
+    <div class="kartu kartu-sorot" style="max-width:40rem;margin-inline:auto;text-align:center">
+      <p class="label" data-gelombang-label style="background:var(--hijau);color:#fff">Gelombang 1 sedang dibuka</p>
+      <h3 data-gelombang-deadline style="font-size:1.35rem">Ditutup <?= e(tgl($GELOMBANG[0]['selesai'])) ?></h3>
+      <div class="mundur" data-gelombang-timer role="timer" style="margin-top:1.2rem">
+        <div style="background:var(--mint);border-color:var(--mint)"><b data-hari style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">hari</span></div>
+        <div style="background:var(--mint);border-color:var(--mint)"><b data-jam style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">jam</span></div>
+        <div style="background:var(--mint);border-color:var(--mint)"><b data-menit style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">menit</span></div>
+        <div style="background:var(--mint);border-color:var(--mint)"><b data-detik style="color:var(--hijau)">--</b><span style="color:var(--teks);opacity:1">detik</span></div>
       </div>
-    <?php endif; ?>
+      <p class="mundur-habis" data-habis hidden style="color:var(--redup)">Gelombang ini sudah ditutup.</p>
+      <p style="margin-top:1.4rem">
+        <a class="tbl tbl-utama" href="<?= e(link_daftar()) ?>"<?= link_daftar() === '#' ? '' : ' target="_blank" rel="noopener"' ?>>Daftar sekarang</a>
+      </p>
+    </div>
   </div>
 </section>
 
@@ -137,5 +143,124 @@ include __DIR__ . '/includes/header.php';
     </div>
   </div>
 </section>
+
+<script>
+(function () {
+  'use strict';
+
+  var timer = document.querySelector('[data-gelombang-timer]');
+  if (!timer) return;
+
+  var schedule = <?php echo json_encode($timer_schedule, JSON_UNESCAPED_SLASHES); ?>;
+  var labelEl = document.querySelector('[data-gelombang-label]');
+  var deadlineEl = document.querySelector('[data-gelombang-deadline]');
+  var doneEl = document.querySelector('[data-habis]');
+
+  function pad(value) {
+    return String(value).padStart(2, '0');
+  }
+
+  function setValue(selector, value) {
+    var node = timer.querySelector(selector);
+    if (!node) return;
+    node.textContent = value;
+  }
+
+  function formatDate(value) {
+    return new Date(value).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  function getCurrentIndex(now) {
+    var chosenIndex = 0;
+    var foundUpcoming = false;
+
+    for (var i = 0; i < schedule.length; i++) {
+      var start = new Date(schedule[i].mulai).getTime();
+      var end = new Date(schedule[i].selesai).getTime();
+
+      if (now >= start && now < end) {
+        return i;
+      }
+
+      if (!foundUpcoming && now < start) {
+        chosenIndex = i;
+        foundUpcoming = true;
+      }
+    }
+
+    return chosenIndex;
+  }
+
+  function updateCountdown() {
+    var now = Date.now();
+    var index = getCurrentIndex(now);
+    var target = schedule[index] || schedule[0];
+    var deadline = new Date(target.selesai).getTime();
+    var remaining = Math.max(0, deadline - now);
+
+    if (!target) {
+      setValue('[data-hari]', '00');
+      setValue('[data-jam]', '00');
+      setValue('[data-menit]', '00');
+      setValue('[data-detik]', '00');
+      return;
+    }
+
+    if (remaining <= 0) {
+      setValue('[data-hari]', '00');
+      setValue('[data-jam]', '00');
+      setValue('[data-menit]', '00');
+      setValue('[data-detik]', '00');
+
+      if (labelEl) {
+        labelEl.textContent = 'Semua gelombang sudah ditutup';
+      }
+
+      if (deadlineEl) {
+        deadlineEl.textContent = 'Pendaftaran telah berakhir';
+      }
+
+      if (doneEl) {
+        doneEl.hidden = false;
+        doneEl.textContent = 'Semua gelombang pendaftaran sudah ditutup.';
+      }
+
+      return;
+    }
+
+    var days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+    setValue('[data-hari]', pad(days));
+    setValue('[data-jam]', pad(hours));
+    setValue('[data-menit]', pad(minutes));
+    setValue('[data-detik]', pad(seconds));
+
+    timer.setAttribute('data-batas', target.selesai);
+
+    if (labelEl) {
+      var start = new Date(target.mulai).getTime();
+      labelEl.textContent = now >= start ? (target.nama + ' sedang dibuka') : (target.nama + ' segera dibuka');
+    }
+
+    if (deadlineEl) {
+      deadlineEl.textContent = 'Ditutup ' + formatDate(target.selesai);
+    }
+
+    if (doneEl) {
+      doneEl.hidden = true;
+    }
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
+</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

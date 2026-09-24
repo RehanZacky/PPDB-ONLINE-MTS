@@ -19,17 +19,17 @@ include __DIR__ . '/includes/header.php';
 
     <form class="ppdb-form" action="#" method="post" enctype="multipart/form-data">
       <div class="step-indicator" aria-label="Tahap pendaftaran">
-        <div class="step-item active">
+        <div class="step-item active" data-step="0">
           <span class="step-dot">1</span>
           <small>Data Diri</small>
         </div>
         <span class="step-line"></span>
-        <div class="step-item">
+        <div class="step-item" data-step="1">
           <span class="step-dot">2</span>
           <small>Data Pendukung</small>
         </div>
         <span class="step-line"></span>
-        <div class="step-item">
+        <div class="step-item" data-step="2">
           <span class="step-dot">3</span>
           <small>Bukti Pembayaran</small>
         </div>
@@ -331,7 +331,8 @@ include __DIR__ . '/includes/header.php';
   if (!form) return;
 
   var steps = Array.prototype.slice.call(form.querySelectorAll('.form-step'));
-  var dots = Array.prototype.slice.call(document.querySelectorAll('.step-dot'));
+  var stepItems = Array.prototype.slice.call(document.querySelectorAll('.step-item'));
+  var stepLines = Array.prototype.slice.call(document.querySelectorAll('.step-line'));
   var nextButtons = Array.prototype.slice.call(form.querySelectorAll('.next-step'));
   var prevButtons = Array.prototype.slice.call(form.querySelectorAll('.prev-step'));
   var submitButton = form.querySelector('.submit-confirm');
@@ -387,8 +388,13 @@ include __DIR__ . '/includes/header.php';
       step.classList.toggle('active', index === currentStep);
     });
 
-    dots.forEach(function (dot, index) {
-      dot.classList.toggle('active', index === currentStep);
+    stepItems.forEach(function (item, index) {
+      item.classList.toggle('active', index === currentStep);
+      item.classList.toggle('completed', index < currentStep);
+    });
+
+    stepLines.forEach(function (line, index) {
+      line.classList.toggle('active', index < currentStep);
     });
   }
 
@@ -531,6 +537,9 @@ include __DIR__ . '/includes/header.php';
     field.addEventListener('input', saveDraft);
     field.addEventListener('change', saveDraft);
   });
+
+  window.addEventListener('beforeunload', saveDraft);
+  window.addEventListener('pagehide', saveDraft);
 
   function setupFilePreview(input) {
     var preview = input.closest('.upload-box').querySelector('.upload-preview');
