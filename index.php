@@ -32,8 +32,8 @@ include __DIR__ . '/includes/header.php';
 
     <p class="hero-teks">
       Madrasah Tsanawiyah berbasis tahfidh Al-Qur'an dengan asrama pesantren.
-      Anak belajar kurikulum nasional di pagi hari, menghafal dan mengaji di sore
-      serta malam hari, dalam satu pengasuhan.
+      Anak belajar kurikulum nasional,dan serta menghafal dan mengaji di sore
+      serta malam hari,.
     </p>
 
     <div class="hero-tbl">
