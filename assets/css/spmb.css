@@ -795,6 +795,8 @@ h1, h2, h3, h4 {
 .badge-tutup { background: #f1f5f9; color: var(--redup); }
 
 /* ---------- alur ---------- */
+.gambar-alur { max-width: 56rem; margin: 0 auto; }
+.gambar-alur img { display: block; width: 100%; height: auto; border-radius: 8px; cursor: zoom-in; }
 .alur { list-style: none; padding: 0; margin: 0 auto; max-width: 54rem; position: relative; }
 .alur::before { content: ""; position: absolute; left: 25px; top: 24px; bottom: 40px; width: 2px; background: var(--garis); }
 .alur > li { position: relative; padding: 0 0 2.2rem 4.3rem; }
@@ -822,6 +824,19 @@ h1, h2, h3, h4 {
 .syarat li { display: flex; gap: .8rem; align-items: flex-start; padding: .85rem 0; border-bottom: 1px solid var(--garis); }
 .syarat b { display: block; font-weight: 700; color: var(--judul); font-size: .96rem; }
 .syarat small { display: block; color: var(--redup); font-size: .86rem; }
+
+/* ---------- gambar pembayaran ---------- */
+.gambar-pembayaran { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem; max-width: 58rem; margin: 0 auto 1.6rem; }
+.kolom-gambar-pembayaran { display: grid; gap: 1.6rem; }
+.gambar-pembayaran img { display: block; width: 100%; height: 21rem; object-fit: contain; border-radius: 8px; cursor: zoom-in; }
+@media (max-width: 760px) { .gambar-pembayaran { grid-template-columns: 1fr; } }
+
+.lightbox { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 2rem; background: rgba(8, 29, 19, .86); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; }
+.lightbox.buka { opacity: 1; visibility: visible; }
+.lightbox-gambar { display: block; width: min(92vw, 70rem); height: min(88vh, 52rem); object-fit: contain; }
+.lightbox-tutup { position: absolute; top: 1rem; right: 1.25rem; width: 2.75rem; height: 2.75rem; border: 0; border-radius: 50%; background: #fff; color: var(--judul); font-size: 2rem; line-height: 1; cursor: pointer; }
+.lightbox-tutup:hover, .lightbox-tutup:focus-visible { background: var(--mint); }
+body.lightbox-terbuka { overflow: hidden; }
 
 /* ---------- tabel biaya ---------- */
 .tab-tombol { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }

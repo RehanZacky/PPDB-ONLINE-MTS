@@ -22,16 +22,9 @@ include __DIR__ . '/includes/header.php';
 
 <section class="blok">
   <div class="wadah">
-    <ol class="alur">
-      <?php foreach ($ALUR as $i => $l): ?>
-        <li>
-          <span class="no" aria-hidden="true"><?= $i + 1 ?></span>
-          <h3><?= e($l['judul']) ?></h3>
-          <p><?= e($l['isi']) ?></p>
-          <span class="meta"><?= e($l['meta']) ?></span>
-        </li>
-      <?php endforeach; ?>
-    </ol>
+    <figure class="gambar-alur">
+      <img src="assets/img/Alur.png" alt="Infografik alur pendaftaran calon santri dan siswa baru">
+    </figure>
 
     <p style="text-align:center;margin-top:2.8rem">
       <a class="tbl tbl-utama" href="<?= e(link_daftar()) ?>"<?= link_daftar() === '#' ? '' : ' target="_blank" rel="noopener"' ?>>Mulai dari langkah pertama</a>
@@ -101,6 +94,17 @@ include __DIR__ . '/includes/header.php';
       <span class="label">Pembayaran</span>
       <h2>Cara membayar</h2>
       <p>Setiap pembayaran dikonfirmasi ke WhatsApp panitia agar tercatat, lalu kuitansi resmi diterbitkan bendahara.</p>
+    </div>
+
+    <div class="gambar-pembayaran" aria-label="Pilihan pembayaran online, mobile banking, dan pembayaran offline">
+      <div class="kolom-gambar-pembayaran">
+        <img src="assets/img/Bayaronline.png" alt="Panduan pembayaran online">
+        <img src="assets/img/Metodebayaroffline.png" alt="Metode pembayaran offline">
+      </div>
+      <div class="kolom-gambar-pembayaran">
+        <img src="assets/img/Mobilebanking.png" alt="Panduan pembayaran melalui mobile banking">
+        <img src="assets/img/Tatacaraoffline.png" alt="Tata cara pembayaran offline">
+      </div>
     </div>
 
     <div class="grid-2" style="max-width:52rem;margin-inline:auto">

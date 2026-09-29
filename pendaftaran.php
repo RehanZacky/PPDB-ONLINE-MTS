@@ -271,9 +271,21 @@ include __DIR__ . '/includes/header.php';
 
       <div class="form-step" data-step="3">
         <div class="form-panel">
-          <h3>Rekening &amp; Bukti Pembayaran</h3>
+          <h3>Tata cara pembayaran online dan offline</h3>
+
+          <div class="gambar-pembayaran" aria-label="Pilihan pembayaran online, mobile banking, dan pembayaran offline">
+            <div class="kolom-gambar-pembayaran">
+              <img src="assets/img/Bayaronline.png" alt="Panduan pembayaran online">
+              <img src="assets/img/Metodebayaroffline.png" alt="Metode pembayaran offline">
+            </div>
+            <div class="kolom-gambar-pembayaran">
+              <img src="assets/img/Mobilebanking.png" alt="Panduan pembayaran melalui mobile banking">
+              <img src="assets/img/Tatacaraoffline.png" alt="Tata cara pembayaran offline">
+            </div>
+          </div>
 
           <div class="rekening-box">
+            <h3>Rekening &amp; Bukti Pembayaran</h3>
             <p><strong>Nomor rekening pendafataran:</strong></p>
             <div class="rek-row">
               <div class="field">

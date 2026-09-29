@@ -147,16 +147,9 @@ include __DIR__ . '/includes/header.php';
       <p>Seluruh proses memakan waktu sekitar dua pekan. Berikut tiga langkah pertamanya.</p>
     </div>
 
-    <ol class="alur">
-      <?php foreach (array_slice($ALUR, 0, 3) as $i => $l): ?>
-        <li>
-          <span class="no" aria-hidden="true"><?= $i + 1 ?></span>
-          <h3><?= e($l['judul']) ?></h3>
-          <p><?= e($l['isi']) ?></p>
-          <span class="meta"><?= e($l['meta']) ?></span>
-        </li>
-      <?php endforeach; ?>
-    </ol>
+    <figure class="gambar-alur">
+      <img src="assets/img/Alur.png" alt="Infografik alur pendaftaran calon santri dan siswa baru">
+    </figure>
 
     <p style="text-align:center;margin-top:2.4rem">
       <a class="tbl tbl-garis" href="alur.php">Lihat enam langkah dan syarat berkas</a>

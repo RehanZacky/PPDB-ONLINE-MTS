@@ -64,6 +64,11 @@
   <span>Tanya panitia</span>
 </a>
 
+<div class="lightbox" id="lightbox-pembayaran" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Perbesar gambar pembayaran">
+  <button class="lightbox-tutup" type="button" aria-label="Tutup gambar">&times;</button>
+  <img class="lightbox-gambar" src="" alt="">
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -99,6 +104,52 @@
         tabs[ke].focus();
         pilih(tabs[ke]);
       });
+    });
+  }
+
+  /* perbesar gambar pembayaran */
+  var lightbox = document.getElementById("lightbox-pembayaran");
+  var lightboxGambar = lightbox ? lightbox.querySelector(".lightbox-gambar") : null;
+  var lightboxTutup = lightbox ? lightbox.querySelector(".lightbox-tutup") : null;
+  var gambarAktif = null;
+  var gambarPembayaran = Array.prototype.slice.call(document.querySelectorAll(".gambar-pembayaran img, .gambar-alur img"));
+
+  if (lightbox && lightboxGambar && lightboxTutup && gambarPembayaran.length) {
+    var tutupLightbox = function () {
+      lightbox.classList.remove("buka");
+      lightbox.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("lightbox-terbuka");
+      if (gambarAktif) gambarAktif.focus();
+    };
+
+    var bukaLightbox = function (gambar) {
+      gambarAktif = gambar;
+      lightboxGambar.src = gambar.src;
+      lightboxGambar.alt = gambar.alt;
+      lightbox.classList.add("buka");
+      lightbox.setAttribute("aria-hidden", "false");
+      document.body.classList.add("lightbox-terbuka");
+      lightboxTutup.focus();
+    };
+
+    gambarPembayaran.forEach(function (gambar) {
+      gambar.setAttribute("tabindex", "0");
+      gambar.setAttribute("role", "button");
+      gambar.addEventListener("click", function () { bukaLightbox(gambar); });
+      gambar.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          bukaLightbox(gambar);
+        }
+      });
+    });
+
+    lightboxTutup.addEventListener("click", tutupLightbox);
+    lightbox.addEventListener("click", function (ev) {
+      if (ev.target === lightbox) tutupLightbox();
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape" && lightbox.classList.contains("buka")) tutupLightbox();
     });
   }
 })();
