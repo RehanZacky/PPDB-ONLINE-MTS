@@ -33,7 +33,7 @@ $HALAMAN = [
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/spmb.css">
+<link rel="stylesheet" href="assets/css/spmb.css?v=20260928-slideshow">
 </head>
 <body>
 
@@ -43,7 +43,12 @@ $HALAMAN = [
   <div class="wadah atas-isi">
     <a class="merek" href="<?= e($SITE['url_profil']) ?>">
       <?php if (!empty($SITE['logo']) && file_exists(__DIR__ . '/../' . $SITE['logo'])): ?>
-        <img src="<?= e($SITE['logo']) ?>" alt="Logo <?= e($SITE['lembaga']) ?>" width="62" height="62">
+        <span class="logo-slideshow" aria-label="Logo <?= e($SITE['lembaga']) ?>">
+          <img class="logo-gambar tampil" src="<?= e($SITE['logo']) ?>" alt="Logo <?= e($SITE['lembaga']) ?>" width="100" height="100">
+          <?php if (file_exists(__DIR__ . '/../assets/img/logo-ponpes.png')): ?>
+            <img class="logo-gambar" src="assets/img/logo-ponpes.png" alt="Logo Pondok Pesantren Roudlotul Qur'an" width="100" height="100">
+          <?php endif; ?>
+        </span>
       <?php else: ?>
         <span class="lambang" aria-hidden="true">LOGO</span>
       <?php endif; ?>
@@ -77,5 +82,17 @@ $HALAMAN = [
     <?php endforeach; ?>
   </div>
 </nav>
+
+<script>
+  const logoGambar = document.querySelectorAll('.logo-gambar');
+  if (logoGambar.length > 1) {
+    let logoAktif = 0;
+    setInterval(() => {
+      logoGambar[logoAktif].classList.remove('tampil');
+      logoAktif = (logoAktif + 1) % logoGambar.length;
+      logoGambar[logoAktif].classList.add('tampil');
+    }, 7000);
+  }
+</script>
 
 <main id="isi">

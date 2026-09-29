@@ -31,9 +31,9 @@ include __DIR__ . '/includes/header.php';
     </h1>
 
     <p class="hero-teks">
-      Madrasah Tsanawiyah berbasis tahfidh Al-Qur'an dengan asrama pesantren.
-      Anak belajar kurikulum nasional,dan serta menghafal dan mengaji di sore
-      serta malam hari,.
+      MTs Roudlotul Quran adalah Madrasah Tsanawiyah unggulan berbasis tahfidh Al-Qur'an, 
+      yang terintegrasi penuh dengan sistem asrama pesantren. Kami menghadirkan pendidikan komprehensif,
+      yang memadukan penguasaan ilmu pengetahuan melalui kurikulum nasional dengan program intensif tahfidh dan kajian
     </p>
 
     <div class="hero-tbl">
@@ -51,8 +51,8 @@ include __DIR__ . '/includes/header.php';
   <div class="wadah">
     <div class="kepala">
       <span class="label">Pilih jalur</span>
-      <h2>Dua jalur santri, satu madrasah</h2>
-      <p>Keduanya mengikuti kelas MTs yang sama dan mendapat ijazah negeri yang sama. Yang membedakan adalah tempat tinggal dan jam pembinaan.</p>
+      <h2>Ada Dua Pilihan Jalur Dalam Satu Madrasah Tsanawiyah</h2>
+      <p>Keduanya mengikuti kelas MTs yang sama. Yang membedakan adalah tempat tinggal dan jam pembinaan.</p>
     </div>
 
     <div class="grid-2">
@@ -63,6 +63,22 @@ include __DIR__ . '/includes/header.php';
           <h3><?= e($pr['nama']) ?></h3>
           <p class="ket"><?= e($pr['ket']) ?></p>
           <p><?= e($pr['isi']) ?></p>
+          <div class="rincian-program">
+            <h4>Rincian Biaya <?= e($pr['nama']) ?></h4>
+            <div class="rincian-tabel">
+              <?php foreach ($pr['rincian'] as [$nama_biaya, $nominal]): ?>
+                <div class="rincian-baris">
+                  <span><?= e($nama_biaya) ?></span>
+                  <b><?= e($nominal) ?></b>
+                </div>
+              <?php endforeach; ?>
+              <div class="rincian-baris rincian-total">
+                <span>Total</span>
+                <b><?= e($pr['total_rincian']) ?></b>
+              </div>
+            </div>
+          </div>
+          <div class="kotak-bulanan"><?= e($pr['kotak_bulanan']) ?></div>
           <ul>
             <?php foreach ($pr['poin'] as $poin): ?>
               <li>
@@ -71,10 +87,6 @@ include __DIR__ . '/includes/header.php';
               </li>
             <?php endforeach; ?>
           </ul>
-          <p class="kaki">
-            Biaya bulanan <b><?= e(rp(total_biaya($BIAYA[$kunci]['bulanan']))) ?></b><br>
-            Biaya awal masuk <?= e(rp(total_biaya($BIAYA[$kunci]['awal']))) ?>
-          </p>
         </article>
       <?php endforeach; ?>
     </div>
