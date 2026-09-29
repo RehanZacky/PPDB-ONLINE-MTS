@@ -736,6 +736,16 @@ h1, h2, h3, h4 {
 .program h3 { font-size: 1.45rem; }
 .program .ket { color: var(--hijau-terang); font-weight: 800; font-size: .92rem; margin-top: .2rem; }
 .program > p { margin-top: .9rem; }
+.syarat-jalur {
+  margin-top: 1.25rem; padding: .9rem 1rem; border: 1px solid var(--garis);
+  border-radius: var(--radius-kecil); background: var(--mint-muda);
+}
+.syarat-jalur h4 { color: var(--hijau-tua); font-size: 1rem; }
+.syarat-jalur ul { list-style: none; padding: 0; margin: .55rem 0 0; display: grid; gap: .25rem; }
+.syarat-jalur li { display: flex; justify-content: space-between; gap: .8rem; font-size: .86rem; }
+.syarat-jalur li::before { content: "✓"; color: var(--hijau); font-weight: 800; }
+.syarat-jalur li span { flex: 1; }
+.syarat-jalur small { color: var(--redup); text-align: right; }
 .rincian-program {
   margin-top: 1.25rem; border: 1px solid #bbf7d0; border-radius: var(--radius-kecil);
   overflow: hidden; background: #fff;

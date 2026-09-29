@@ -169,6 +169,13 @@ $SYARAT = [
     ['Fotokopi sertifikat prestasi', 'bila mengajukan beasiswa prestasi'],
 ];
 
+$SYARAT_JALUR = [
+    ['Fotokopi KK/KTP', '1 lembar'],
+    ['Foto ananda santriwan/santriwati', '1 lembar'],
+    ['Bisa membaca Al-Qur’an', ''],
+    ['Minimal usia 13 tahun', ''],
+];
+
 /* --------------------------------------------------------------------------
    5. PROGRAM DAN TANYA JAWAB
    -------------------------------------------------------------------------- */
@@ -185,6 +192,7 @@ $PROGRAM = [
             'Makan tiga kali sehari, laundry, dan poliklinik',
             'Pendampingan wali asrama untuk tiap 12 santri',
         ],
+        'syarat'  => $SYARAT_JALUR,
         'rincian' => [
             ['Pendaftaran & uang gedung', 'Rp 300.000'],
             ['Makan 2x', 'Rp 350.000'],
@@ -212,6 +220,7 @@ $PROGRAM = [
             'Boleh menginap saat pekan ujian dan kegiatan besar',
             'Ekstrakurikuler pramuka, pencak silat, dan hadrah',
         ],
+        'syarat'  => $SYARAT_JALUR,
         'rincian' => [
             ['Pendaftaran & gedung', 'Rp 250.000'],
             ['Makan 2x', 'Rp 350.000'],

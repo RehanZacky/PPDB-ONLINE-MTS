@@ -63,6 +63,17 @@ include __DIR__ . '/includes/header.php';
           <h3><?= e($pr['nama']) ?></h3>
           <p class="ket"><?= e($pr['ket']) ?></p>
           <p><?= e($pr['isi']) ?></p>
+          <div class="syarat-jalur">
+            <h4>Persyaratan <?= e($pr['nama']) ?></h4>
+            <ul>
+              <?php foreach ($pr['syarat'] as [$nama_syarat, $keterangan_syarat]): ?>
+                <li>
+                  <span><?= e($nama_syarat) ?></span>
+                  <?php if ($keterangan_syarat !== ''): ?><small><?= e($keterangan_syarat) ?></small><?php endif; ?>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
           <div class="rincian-program">
             <h4>Rincian Biaya <?= e($pr['nama']) ?></h4>
             <div class="rincian-tabel">
@@ -79,14 +90,6 @@ include __DIR__ . '/includes/header.php';
             </div>
           </div>
           <div class="kotak-bulanan"><?= e($pr['kotak_bulanan']) ?></div>
-          <ul>
-            <?php foreach ($pr['poin'] as $poin): ?>
-              <li>
-                <svg class="centang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9 17.5 20 6.5"/></svg>
-                <?= e($poin) ?>
-              </li>
-            <?php endforeach; ?>
-          </ul>
         </article>
       <?php endforeach; ?>
     </div>
