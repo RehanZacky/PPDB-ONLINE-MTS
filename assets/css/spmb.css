@@ -185,6 +185,15 @@ h1, h2, h3, h4 {
 .blok { padding: clamp(3.2rem, 6vw, 5.2rem) 0; }
 .blok-mint { background: var(--mint-muda); }
 .blok-mint-tua { background: var(--mint); }
+.alur-hero {
+  background-image: linear-gradient(rgba(6, 78, 59, .78), rgba(6, 78, 59, .78)), url('../img/bg-alur.jpg');
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+}
+.alur-hero h2 { color: #fff; }
+.alur-hero .kepala p { color: rgba(255, 255, 255, .9); }
+.alur-hero .label { background: rgba(255, 255, 255, .18); color: #fff; }
 .blok-hijau { background: var(--hijau); color: #fff; }
 .blok-hijau h2, .blok-hijau h3 { color: #fff; }
 

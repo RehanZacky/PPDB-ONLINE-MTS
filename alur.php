@@ -10,7 +10,7 @@ $PAGE = [
 include __DIR__ . '/includes/header.php';
 ?>
 
-<section class="blok blok-mint-tua">
+<section class="blok blok-mint-tua alur-hero">
   <div class="wadah">
     <div class="kepala">
       <span class="label">Tata cara</span>

@@ -239,28 +239,44 @@ $PROGRAM = [
 
 $FAQ = [
     [
-        'Apakah lulusan SD negeri boleh mendaftar?',
-        'Boleh. Sekitar separuh santri kami berasal dari SD negeri. Tidak ada syarat harus lulusan MI atau pernah mondok sebelumnya.',
+        "Apakah calon santri lulusan SD Negeri tanpa latar belakang madrasah diperbolehkan mendaftar?",
+        "Tentu saja boleh. Yayasan Roudlotul Qur'an Az Zuhri membuka kesempatan seluas-luasnya bagi seluruh calon santri, baik yang berasal dari SD Negeri maupun Madrasah Ibtidaiyah (MI). Kami sangat memahami bahwa setiap anak memiliki titik awal pemahaman agama yang berbeda. Oleh karena itu, kurikulum MTs kami dirancang adaptif untuk membimbing siswa pada masa awal masuk, sehingga adaptasi dari sekolah umum ke lingkungan pesantren bisa berjalan dengan baik.",
     ],
     [
-        'Anak saya belum lancar membaca Al-Qur\'an, apakah tetap bisa diterima?',
-        'Bisa. Tes baca Al-Qur\'an dipakai untuk menempatkan santri di kelas yang sesuai, bukan untuk menggugurkan. Yang belum lancar masuk kelas tahsin dasar selama semester pertama.',
+        "Bagaimana jika anak saya belum lancar membaca Al-Qur'an atau belum memiliki hafalan sama sekali?",
+        "Bapak/Ibu tidak perlu khawatir. MTs Tahfidh Roudlotul Qur'an memiliki program bimbingan baca tulis Al-Qur'an (BTQ) yang terstruktur dan intensif. Santri yang belum lancar membaca akan dibimbing dari nol oleh ustaz dan ustazah yang berpengalaman hingga benar-benar fasih. Setelah bacaannya tartil dan sesuai tajwid, barulah santri akan diarahkan untuk fokus pada program hafalan (tahfidh) sesuai dengan target capaian kurikulum pondok.",
     ],
     [
-        'Apakah ijazah MTs di sini diakui negara?',
-        'Ya. Madrasah kami berada di bawah Kementerian Agama dan terdaftar di EMIS. Ijazahnya setara SMP dan bisa dipakai mendaftar ke SMA, SMK, atau MA negeri maupun swasta.',
+        "Apakah ijazah yang dikeluarkan oleh MTs di sini diakui secara resmi oleh negara?",
+        "Iya, diakui sepenuhnya. MTs Roudlotul Qur'an beroperasi secara legal dan resmi di bawah naungan Kementerian Agama Republik Indonesia. Lulusan kami akan mendapatkan ijazah negara yang sah, yang dapat digunakan untuk mendaftar ke jenjang pendidikan menengah atas manapun secara nasional, baik itu SMA/SMK negeri, madrasah aliyah swasta, maupun melanjutkan ke pondok pesantren tingkat tinggi lainnya.",
     ],
     [
-        'Kapan santri mukim boleh dijenguk dan pulang?',
-        'Jadwal besuk setiap dua pekan sekali pada hari Ahad pukul 08.00 sampai 15.00. Santri boleh pulang saat libur semester, libur Ramadan, dan Idulfitri sesuai kalender pesantren.',
+        "Bagaimana dengan aturan asrama, kapan wali santri diperbolehkan menjenguk dan kapan santri diizinkan pulang?",
+        "Untuk menjaga fokus, kedisiplinan, dan kelancaran setoran hafalan santri selama masa pendidikan, jadwal penjengukan diatur secara berkala, umumnya dilakukan satu bulan sekali pada hari Ahad minggu tertentu sesuai kalender pondok. Sedangkan untuk kepulangan, santri mukim akan mendapatkan jatah libur resmi dan diizinkan pulang ke rumah pada saat libur akhir semester ganjil/genap serta libur panjang hari raya Idul Fitri dan Idul Adha.",
     ],
     [
-        'Apakah santri boleh membawa telepon genggam?',
-        'Tidak untuk santri mukim. Panitia menyediakan jadwal telepon dua kali sepekan lewat nomor wali asrama, dan setiap wali asrama punya grup WhatsApp bersama orang tua.',
+        "Apa saja fasilitas asrama dan pendidikan yang akan didapatkan oleh santri selama mondok?",
+        "Kami menyediakan fasilitas yang mendukung penuh kegiatan belajar, menghafal Al-Qur'an, dan pembentukan karakter santri. Santri akan menempati ruang asrama yang representatif dengan fasilitas ranjang dan lemari pribadi. Selain itu, tersedia layanan makan bergizi yang terjamin kebersihannya, ruang kelas yang nyaman, masjid sebagai pusat kegiatan ibadah dan setoran hafalan, serta berbagai fasilitas penunjang untuk kegiatan ekstrakurikuler.",
     ],
     [
-        'Bagaimana kalau di tengah jalan ingin pindah dari non-mukim ke mukim?',
-        'Bisa, selama kamar asrama masih tersedia. Wali mengajukan ke bagian pengasuhan, lalu membayar selisih perlengkapan asrama. Biaya awal yang sudah dibayar tidak dihitung ulang.',
+        "Bagaimana alur pendaftaran secara online melalui website ini?",
+        "Proses pendaftaran dirancang agar sangat mudah dilakukan secara mandiri dari rumah. Wali santri cukup membuat akun pendaftaran, mengisi formulir data diri calon santri secara lengkap, mengunggah dokumen persyaratan seperti scan Kartu Keluarga, akta kelahiran, dan pas foto, lalu melakukan pembayaran biaya pendaftaran. Setelah data diverifikasi oleh panitia spmb/komite, kartu peserta tes seleksi dapat langsung diunduh dan dicetak melalui dashboard akun masing-masing.",
+    ],
+    [
+        "Apa saja materi yang akan diujikan dalam tes seleksi masuk MTs?",
+        "Tes seleksi masuk dirancang untuk memetakan kemampuan dasar akademik calon santri dan menempatkan mereka di kelas yang tepat. Materi ujian meliputi tes akademik (Matematika, IPA, dan Bahasa Indonesia), serta tes pemetaan kemampuan membaca Al-Qur'an (kelancaran dan tajwid dasar). Bagi calon santri yang sudah memiliki hafalan sebelumnya, akan ada sesi tes sambung ayat untuk penempatan di kelas tahfidh lanjutan. Terdapat juga sesi wawancara bagi wali santri untuk menyelaraskan visi dan misi pendidikan.",
+    ],
+    [
+        "Bagaimana rincian biaya pendidikan dan apakah MTs menyediakan program beasiswa?",
+        "Kami berkomitmen untuk memberikan rincian pembiayaan yang transparan sejak awal. Informasi lengkap mengenai biaya pendaftaran, daftar ulang, perlengkapan asrama, seragam, hingga infak bulanan dapat dilihat langsung pada menu Info Biaya SPMB di website ini. Yayasan Roudlotul Qur'an Az Zuhri juga menyediakan kuota beasiswa bagi calon santri berprestasi tingkat kabupaten/kota, serta jalur khusus keringanan biaya bagi santri dari keluarga yatim atau dhuafa sesuai dengan persyaratan dari panitia.",
+    ],
+    [
+        "Selain program tahfidh dan kegiatan madrasah, apakah ada kegiatan ekstrakurikuler?",
+        "Tentu saja ada. Usia MTs adalah masa yang sangat aktif untuk mengeksplorasi minat dan bakat. Oleh karena itu, pondok memfasilitasi berbagai kegiatan ekstrakurikuler seperti kepramukaan, seni bela diri (pencak silat), seni baca Al-Qur'an (qira'ah), hadrah/banjari, kaligrafi, hingga pelatihan pidato (muhadharah) dalam bahasa Arab dan Inggris. Tujuannya agar lulusan MTs kami tidak hanya kuat hafalannya, tetapi juga memiliki keterampilan kepemimpinan dan rasa percaya diri.",
+    ],
+    [
+        "Bagaimana cara orang tua memantau perkembangan anak dan berkomunikasi selama di asrama?",
+        "Sesuai aturan kedisiplinan pesantren untuk menjaga fokus hafalan, santri MTs memang tidak diizinkan membawa alat komunikasi (HP) pribadi. Namun, pesantren menyediakan fasilitas layanan telepon umum atau video call terjadwal melalui gawai musyrif/musyrifah (pengurus asrama) pada akhir pekan. Untuk perkembangan akademik dan capaian tahfidh, ustaz/ustazah pembimbing akan rutin memberikan laporan evaluasi melalui buku penghubung dan grup WhatsApp resmi wali santri.",
     ],
 ];
 

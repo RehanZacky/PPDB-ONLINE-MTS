@@ -1,5 +1,17 @@
 </main>
 
+<!-- ajakan daftar -->
+<section class="blok blok-mint-tua" aria-labelledby="ajakan-daftar">
+  <div class="wadah" style="text-align:center">
+    <div class="kepala">
+      <span class="label">Pendaftaran <?= e($SITE['tahun_ajaran']) ?></span>
+      <h2 id="ajakan-daftar">Yuk, buruan daftar sekarang!</h2>
+      <p>Amankan kesempatan belajar dan berkembang bersama MTs Tahfidh Roudlotul Qur'an.</p>
+    </div>
+    <a class="tbl tbl-utama" href="<?= e(link_daftar()) ?>">Daftar sekarang</a>
+  </div>
+</section>
+
 <!-- kontak panitia -->
 <section class="blok blok-mint" id="kontak">
   <div class="wadah">
