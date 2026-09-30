@@ -250,6 +250,24 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   file_put_contents($path, $pdf, LOCK_EX);
 }
 
+if (isset($_GET['download'])) {
+  $downloadNumber = strtoupper((string) $_GET['download']);
+  if (!preg_match('/^MTS-[0-9]{8}-[A-F0-9]{6}$/', $downloadNumber)) {
+    http_response_code(404);
+    exit('Berkas tidak ditemukan.');
+  }
+  $downloadPath = __DIR__ . '/uploads/pendaftaran/' . $downloadNumber . '/' . $downloadNumber . '.pdf';
+  if (!is_file($downloadPath)) {
+    http_response_code(404);
+    exit('Berkas tidak ditemukan.');
+  }
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: attachment; filename="' . $downloadNumber . '.pdf"');
+  header('Content-Length: ' . filesize($downloadPath));
+  readfile($downloadPath);
+  exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $registrationNumber = 'MTS-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
   $storageDirectory = __DIR__ . '/uploads/pendaftaran/' . $registrationNumber;
@@ -286,20 +304,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $pdfName = $registrationNumber . '.pdf';
   $pdfPath = $storageDirectory . '/' . $pdfName;
   create_registration_pdf($pdfPath, $registrationNumber, $data, $files);
-  header('Content-Type: application/pdf');
-  header('Content-Disposition: attachment; filename="' . $pdfName . '"');
-  header('Content-Length: ' . filesize($pdfPath));
-  readfile($pdfPath);
+  header('Location: pendaftaran.php?success=' . rawurlencode($registrationNumber));
   exit;
+}
+
+$successRegistration = null;
+if (isset($_GET['success'])) {
+  $successNumber = strtoupper((string) $_GET['success']);
+  $successPath = __DIR__ . '/uploads/pendaftaran/' . $successNumber . '/' . $successNumber . '.pdf';
+  if (preg_match('/^MTS-[0-9]{8}-[A-F0-9]{6}$/', $successNumber) && is_file($successPath)) {
+    $successRegistration = $successNumber;
+  }
 }
 
 $PAGE = [
     'slug' => 'pendaftaran',
-    'judul' => 'Formulir Pendaftaran SPMB',
-    'deskripsi' => 'Formulir pendaftaran calon santri baru MTs Tahfidh Roudlotul Qur\'an.',
+    'judul' => $successRegistration ? 'Pendaftaran Berhasil' : 'Formulir Pendaftaran SPMB',
+    'deskripsi' => $successRegistration ? 'Pendaftaran berhasil dan PDF pendaftaran sudah disiapkan.' : 'Formulir pendaftaran calon santri baru MTs Tahfidh Roudlotul Qur\'an.',
 ];
 
 include __DIR__ . '/includes/header.php';
+
+if ($successRegistration !== null):
+  $downloadUrl = 'pendaftaran.php?download=' . rawurlencode($successRegistration);
+?>
+<section class="blok blok-mint">
+  <div class="wadah">
+    <div class="kepala">
+      <span class="label">Pendaftaran berhasil</span>
+      <h2>Data pendaftaran sudah berhasil terisi</h2>
+      <p>PDF pendaftaran sedang diunduh ke perangkat Anda. Simpan file tersebut sebelum melanjutkan.</p>
+    </div>
+
+    <div class="form-panel">
+      <p><strong>Nomor pendaftaran: <?= e($successRegistration) ?></strong></p>
+      <p class="arahan-wa"><strong>Penting:</strong> setelah PDF selesai diunduh, kirim file PDF tersebut secara manual melalui WhatsApp ke panitia agar pendaftaran dapat segera diproses.</p>
+      <div class="step-actions">
+        <a class="tbl tbl-garis" id="download-pdf" href="<?= e($downloadUrl) ?>" download>Download PDF lagi</a>
+        <a class="tbl tbl-utama" href="<?= e(wa()) ?>" target="_blank" rel="noopener">Buka WhatsApp panitia</a>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  window.addEventListener('load', function () {
+    var downloadLink = document.getElementById('download-pdf');
+    if (downloadLink) downloadLink.click();
+  });
+</script>
+</main>
+</body>
+</html>
+<?php
+  exit;
+endif;
 ?>
 
 <section class="blok blok-mint">
