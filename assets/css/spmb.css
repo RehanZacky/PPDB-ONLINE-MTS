@@ -105,6 +105,15 @@ h1, h2, h3, h4 {
 .tbl-garis  { background: transparent; color: var(--hijau); border-color: #bbf7d0; }
 .tbl-garis:hover { background: var(--mint-muda); border-color: var(--hijau-terang); }
 
+.arahan-wa {
+  padding: 1rem 1.1rem;
+  border: 1px solid #86efac;
+  border-left: 5px solid var(--hijau);
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: var(--hijau-tua);
+}
+
 .tbl-putih  { background: #fff; color: var(--hijau); border-color: #fff; }
 .tbl-putih:hover { background: var(--mint); border-color: var(--mint); }
 
