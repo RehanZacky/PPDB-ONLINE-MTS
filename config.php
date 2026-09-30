@@ -20,11 +20,11 @@ $SITE = [
     'url_profil'    => 'https://mtstahfidhroudlotulquran.sch.id',
 
     // Kontak panitia
-    'wa'            => '6281234567890',        // format internasional, tanpa + dan tanpa 0 di depan
-    'wa_tampil'     => '0812-3456-7890',
+    'wa'            => '6281230294589',        // format internasional, tanpa + dan tanpa 0 di depan
+    'wa_tampil'     => '081230294589',
     'wa_nama'       => 'Ustaz Fauzi',
-    'wa2'           => '6281234567891',
-    'wa2_tampil'    => '0812-3456-7891',
+    'wa2'           => '6281230294589',
+    'wa2_tampil'    => '081230294589',
     'wa2_nama'      => 'Ustazah Aisyah',
     'email'         => 'spmb@mtstahfidhroudlotulquran.sch.id',
     'alamat'        => 'Ngampelsari, Kec. Candi, Kabupaten Sidoarjo, Jawa Timur 61271',

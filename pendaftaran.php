@@ -1,6 +1,224 @@
 <?php
 require __DIR__ . '/config.php';
 
+function pdf_text(string $text): string
+{
+  $text = iconv('UTF-8', 'Windows-1252//TRANSLIT//IGNORE', $text) ?: $text;
+  return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $text);
+}
+
+function pdf_png_logo(string $path): ?array
+{
+  $png = @file_get_contents($path);
+  if ($png === false || substr($png, 0, 8) !== "\x89PNG\r\n\x1a\n") {
+    return null;
+  }
+  $offset = 8;
+  $palette = '';
+  $compressed = '';
+  $width = $height = $colorType = $bitDepth = 0;
+  while ($offset + 12 <= strlen($png)) {
+    $length = unpack('N', substr($png, $offset, 4))[1];
+    $type = substr($png, $offset + 4, 4);
+    $chunk = substr($png, $offset + 8, $length);
+    $offset += 12 + $length;
+    if ($type === 'IHDR') {
+      $header = unpack('Nwidth/Nheight/CbitDepth/CcolorType', substr($chunk, 0, 10));
+      $width = $header['width'];
+      $height = $header['height'];
+      $bitDepth = $header['bitDepth'];
+      $colorType = $header['colorType'];
+    } elseif ($type === 'PLTE') {
+      $palette = $chunk;
+    } elseif ($type === 'IDAT') {
+      $compressed .= $chunk;
+    } elseif ($type === 'IEND') {
+      break;
+    }
+  }
+  if ($width < 1 || $height < 1 || $bitDepth !== 8 || $colorType !== 3 || $palette === '') {
+    return null;
+  }
+  $raw = @zlib_decode($compressed);
+  if ($raw === false || strlen($raw) < ($width + 1) * $height) {
+    return null;
+  }
+  $rgbRows = '';
+  $previous = array_fill(0, $width, 0);
+  $position = 0;
+  for ($row = 0; $row < $height; $row++) {
+    $filter = ord($raw[$position++]);
+    $current = [];
+    $rgbRow = "\x00";
+    for ($x = 0; $x < $width; $x++) {
+      $value = ord($raw[$position++]);
+      $left = $x > 0 ? $current[$x - 1] : 0;
+      $above = $previous[$x];
+      $upperLeft = $x > 0 ? $previous[$x - 1] : 0;
+      if ($filter === 1) $value = ($value + $left) & 255;
+      elseif ($filter === 2) $value = ($value + $above) & 255;
+      elseif ($filter === 3) $value = ($value + intdiv($left + $above, 2)) & 255;
+      elseif ($filter === 4) {
+        $estimate = $left + $above - $upperLeft;
+        $pa = abs($estimate - $left);
+        $pb = abs($estimate - $above);
+        $pc = abs($estimate - $upperLeft);
+        $predictor = $pa <= $pb && $pa <= $pc ? $left : ($pb <= $pc ? $above : $upperLeft);
+        $value = ($value + $predictor) & 255;
+      }
+      $current[$x] = $value;
+      $paletteOffset = $value * 3;
+      $rgbRow .= substr($palette, $paletteOffset, 3);
+    }
+    $rgbRows .= $rgbRow;
+    $previous = $current;
+  }
+  return ['width' => $width, 'height' => $height, 'data' => gzcompress($rgbRows)];
+}
+
+function create_registration_pdf(string $path, string $registrationNumber, array $data, array $files): void
+{
+  $value = static function (string $label) use ($data): string {
+    return trim((string) ($data[$label] ?? ''));
+  };
+  $text = static function (string $font, float $size, float $x, float $y, string $content): string {
+    return "BT /{$font} {$size} Tf {$x} {$y} Td (" . pdf_text(substr($content, 0, 82)) . ") Tj ET\n";
+  };
+  $line = static function (float $x1, float $y1, float $x2, float $y2, float $width = 1): string {
+    return "{$width} w {$x1} {$y1} m {$x2} {$y2} l S\n";
+  };
+  $field = static function (string $label, string $fieldValue, float $y, string $prefix = '') use ($text): string {
+    return $text('F2', 10, 55, $y, $prefix . $label) . $text('F1', 10, 220, $y, ': ' . ($fieldValue !== '' ? $fieldValue : '-'));
+  };
+
+  $logo = pdf_png_logo(__DIR__ . '/assets/img/logo.png');
+  $logoMark = $logo !== null ? "q 90 0 0 90 45 700 cm /Im1 Do Q\n" : '';
+  $header = $logoMark . $text('F2', 16, 145, 790, 'YAYASAN ROUDLOTUL QURAN AZ ZUHRI')
+    . $text('F2', 17, 185, 766, 'MTS ROUDLOTUL QURAN')
+    . $text('F1', 11, 155, 742, 'Desa Ngampelsari Rt. 03 Ngampelsari, Candi, Sidoarjo')
+    . $text('F1', 10, 130, 722, 'Email: mtsroudlotulquran@gmail.com   Telepon: 081230294589')
+    . $text('F1', 10, 120, 702, 'SK KEMENKUMHAM Nomor AHU-0027813.AH.01.04. Tahun 2022')
+    . $line(45, 685, 550, 685, 1.2) . $line(45, 680, 550, 680, 3);
+
+  $pageOne = $header . $text('F2', 18, 165, 640, 'D A T A  D I R I  S I S W A');
+  $pageOne .= $field('1. Nama Siswa', $value('Nama siswa'), 575);
+  $pageOne .= $field('2. Nomor Induk', $value('Nomor induk'), 554);
+  $pageOne .= $field('3. NIS Nasional', $value('NISN'), 533);
+  $pageOne .= $field('4. Jenis Kelamin', $value('Jenis kelamin'), 512);
+  $pageOne .= $field('5. Tempat dan Tgl Lahir', $value('Tempat dan tanggal lahir'), 491);
+  $pageOne .= $field('6. Agama', $value('Agama'), 470);
+  $pageOne .= $field('7. Anak Ke', $value('Anak ke'), 449);
+  $pageOne .= $field('8. Status di Keluarga', $value('Status di keluarga'), 428);
+  $pageOne .= $field('9. Alamat Siswa', $value('Alamat siswa'), 407);
+  $pageOne .= $text('F2', 10, 55, 365, '10. Sekolah Asal');
+  $pageOne .= $field('Nama Sekolah', $value('Sekolah asal'), 344, 'a. ');
+  $pageOne .= $field('Alamat Sekolah', $value('Alamat sekolah asal'), 323, 'b. ');
+  $pageOne .= $text('F2', 10, 55, 281, '11. Nama Orang Tua');
+  $pageOne .= $field('Ayah', $value('Nama ayah'), 260, 'a. ');
+  $pageOne .= $field('Ibu', $value('Nama ibu'), 239, 'b. ');
+  $pageOne .= $field('12. Alamat Orang Tua', $value('Alamat orang tua'), 197);
+  $pageOne .= $text('F2', 10, 55, 155, '13. Pekerjaan Orang Tua');
+  $pageOne .= $field('Ayah', $value('Pekerjaan ayah'), 134, 'a. ');
+  $pageOne .= $field('Ibu', $value('Pekerjaan ibu'), 113, 'b. ');
+  $pageOne .= $field('14. Nama Wali', $value('Nama wali'), 71);
+  $pageOne .= $field('15. Alamat Wali', $value('Alamat wali'), 50);
+  $pageOne .= $field('16. Pekerjaan', $value('Pekerjaan wali'), 29);
+
+  $pageTwo = $header . $text('F2', 16, 190, 640, 'DATA PENDAFTARAN')
+    . $field('Nomor pendaftaran', $registrationNumber, 590)
+    . $field('Tanggal kirim', date('d-m-Y H:i'), 569)
+    . $field('Kategori santri', $value('Kategori santri'), 548)
+    . $field('Diterima di kelas', $value('Diterima di kelas'), 527)
+    . $field('Tanggal diterima', $value('Tanggal diterima'), 506)
+    . $text('F2', 12, 55, 465, 'BERKAS TERUNGGAH');
+  $fileY = 438;
+  foreach ($files as $label => $fileName) {
+    $pageTwo .= $field($label, $fileName, $fileY);
+    $fileY -= 21;
+  }
+
+  $pages = [$pageOne, $pageTwo];
+  $objects = ['<< /Type /Catalog /Pages 2 0 R >>', '', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'];
+  $pageNumbers = [];
+  $contentNumbers = [];
+  $imageNumber = null;
+  if ($logo !== null) {
+    $imageNumber = 5;
+    $objects[] = '<< /Type /XObject /Subtype /Image /Width ' . $logo['width'] . ' /Height ' . $logo['height'] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /DecodeParms << /Predictor 15 /Colors 3 /BitsPerComponent 8 /Columns ' . $logo['width'] . ' >> /Length ' . strlen($logo['data']) . " >>\nstream\n" . $logo['data'] . "\nendstream";
+  }
+  $nextObject = $logo !== null ? 6 : 5;
+  foreach ($pages as $unused) {
+    $pageNumbers[] = $nextObject++;
+    $contentNumbers[] = $nextObject++;
+  }
+  $kids = implode(' ', array_map(static fn ($number) => $number . ' 0 R', $pageNumbers));
+  $objects[1] = '<< /Type /Pages /Kids [' . $kids . '] /Count ' . count($pages) . ' >>';
+  foreach ($pages as $pageIndex => $content) {
+    $imageResource = $imageNumber === null ? '' : ' /XObject << /Im1 ' . $imageNumber . ' 0 R >>';
+    $objects[] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' . $imageResource . ' >> /Contents ' . $contentNumbers[$pageIndex] . ' 0 R >>';
+    $objects[] = '<< /Length ' . strlen($content) . " >>\nstream\n" . $content . "\nendstream";
+  }
+
+  $pdf = "%PDF-1.4\n";
+  $offsets = [0];
+  foreach ($objects as $index => $object) {
+    $objectNumber = $index + 1;
+    $offsets[$objectNumber] = strlen($pdf);
+    $pdf .= $objectNumber . " 0 obj\n" . $object . "\nendobj\n";
+  }
+  $xrefOffset = strlen($pdf);
+  $pdf .= "xref\n0 " . (count($objects) + 1) . "\n0000000000 65535 f \n";
+  for ($index = 1; $index <= count($objects); $index++) {
+    $pdf .= sprintf("%010d 00000 n \n", $offsets[$index]);
+  }
+  $pdf .= "trailer\n<< /Size " . (count($objects) + 1) . " /Root 1 0 R >>\nstartxref\n" . $xrefOffset . "\n%%EOF";
+  file_put_contents($path, $pdf, LOCK_EX);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $registrationNumber = 'MTS-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+  $storageDirectory = __DIR__ . '/uploads/pendaftaran/' . $registrationNumber;
+  if (!is_dir($storageDirectory) && !mkdir($storageDirectory, 0755, true)) {
+    http_response_code(500);
+    exit('Folder penyimpanan pendaftaran tidak dapat dibuat.');
+  }
+  $labels = [
+    'nama_siswa' => 'Nama siswa', 'nomor_induk' => 'Nomor induk', 'nisn' => 'NISN',
+    'jenis_kelamin' => 'Jenis kelamin', 'tempat_tanggal_lahir' => 'Tempat dan tanggal lahir',
+    'agama' => 'Agama', 'anak_ke' => 'Anak ke', 'status_keluarga' => 'Status di keluarga',
+    'kategori_santri' => 'Kategori santri', 'alamat_siswa' => 'Alamat siswa',
+    'diterima_kelas' => 'Diterima di kelas', 'tanggal_diterima' => 'Tanggal diterima',
+    'nama_sekolah' => 'Sekolah asal', 'alamat_sekolah' => 'Alamat sekolah asal',
+    'nama_ayah' => 'Nama ayah', 'nama_ibu' => 'Nama ibu', 'alamat_orang_tua' => 'Alamat orang tua',
+    'pekerjaan_ayah' => 'Pekerjaan ayah', 'pekerjaan_ibu' => 'Pekerjaan ibu',
+    'nama_wali' => 'Nama wali', 'alamat_wali' => 'Alamat wali', 'pekerjaan_wali' => 'Pekerjaan wali',
+  ];
+  $data = [];
+  foreach ($labels as $key => $label) {
+    $data[$label] = trim((string) ($_POST[$key] ?? ''));
+  }
+  $data['Nomor MTS'] = trim((string) ($_POST['nomor_mts'] ?? ''));
+  $files = [];
+  foreach (['akta' => 'Akta kelahiran', 'kk' => 'Kartu keluarga', 'sertifikat' => 'Sertifikat/prestasi', 'rapor' => 'Rapor/nilai', 'foto' => 'Foto siswa', 'dokumen_lain' => 'Dokumen lainnya', 'bukti_pembayaran' => 'Bukti pembayaran'] as $key => $label) {
+    if (empty($_FILES[$key]['name']) || $_FILES[$key]['error'] !== UPLOAD_ERR_OK) {
+      continue;
+    }
+    $extension = strtolower(pathinfo($_FILES[$key]['name'], PATHINFO_EXTENSION));
+    $safeName = $key . ($extension ? '.' . preg_replace('/[^a-z0-9]/', '', $extension) : '');
+    if (move_uploaded_file($_FILES[$key]['tmp_name'], $storageDirectory . '/' . $safeName)) {
+      $files[$label] = $safeName;
+    }
+  }
+  $pdfName = $registrationNumber . '.pdf';
+  $pdfPath = $storageDirectory . '/' . $pdfName;
+  create_registration_pdf($pdfPath, $registrationNumber, $data, $files);
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: attachment; filename="' . $pdfName . '"');
+  header('Content-Length: ' . filesize($pdfPath));
+  readfile($pdfPath);
+  exit;
+}
+
 $PAGE = [
     'slug' => 'pendaftaran',
     'judul' => 'Formulir Pendaftaran SPMB',
@@ -17,7 +235,7 @@ include __DIR__ . '/includes/header.php';
       <h2>Daftar calon santri baru</h2>
     </div>
 
-    <form class="ppdb-form" action="#" method="post" enctype="multipart/form-data">
+    <form class="ppdb-form" action="pendaftaran.php" method="post" enctype="multipart/form-data">
       <div class="step-indicator" aria-label="Tahap pendaftaran">
         <div class="step-item active" data-step="0">
           <span class="step-dot">1</span>

@@ -16,7 +16,9 @@
         </span>
         <b>WhatsApp panitia</b>
         <a href="https://wa.me/<?= e($SITE['wa']) ?>" target="_blank" rel="noopener"><?= e($SITE['wa_tampil']) ?> — <?= e($SITE['wa_nama']) ?></a>
-        <a href="https://wa.me/<?= e($SITE['wa2']) ?>" target="_blank" rel="noopener"><?= e($SITE['wa2_tampil']) ?> — <?= e($SITE['wa2_nama']) ?></a>
+        <?php if (!empty($SITE['wa2']) && $SITE['wa2'] !== $SITE['wa']): ?>
+          <a href="https://wa.me/<?= e($SITE['wa2']) ?>" target="_blank" rel="noopener"><?= e($SITE['wa2_tampil']) ?> — <?= e($SITE['wa2_nama']) ?></a>
+        <?php endif; ?>
       </li>
       <li>
         <span class="bulat" aria-hidden="true">
