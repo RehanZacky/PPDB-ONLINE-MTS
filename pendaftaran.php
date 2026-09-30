@@ -36,25 +36,26 @@ function pdf_png_logo(string $path): ?array
       break;
     }
   }
-  if ($width < 1 || $height < 1 || $bitDepth !== 8 || $colorType !== 3 || $palette === '') {
+  if ($width < 1 || $height < 1 || $bitDepth !== 8 || !in_array($colorType, [2, 3, 6], true) || ($colorType === 3 && $palette === '')) {
     return null;
   }
+  $bytesPerPixel = $colorType === 3 ? 1 : ($colorType === 2 ? 3 : 4);
   $raw = @zlib_decode($compressed);
-  if ($raw === false || strlen($raw) < ($width + 1) * $height) {
+  if ($raw === false || strlen($raw) < ($width * $bytesPerPixel + 1) * $height) {
     return null;
   }
   $rgbRows = '';
-  $previous = array_fill(0, $width, 0);
+  $previous = array_fill(0, $width * $bytesPerPixel, 0);
   $position = 0;
   for ($row = 0; $row < $height; $row++) {
     $filter = ord($raw[$position++]);
-    $current = [];
+    $current = array_fill(0, $width * $bytesPerPixel, 0);
     $rgbRow = "\x00";
-    for ($x = 0; $x < $width; $x++) {
+    for ($pixel = 0; $pixel < $width * $bytesPerPixel; $pixel++) {
       $value = ord($raw[$position++]);
-      $left = $x > 0 ? $current[$x - 1] : 0;
-      $above = $previous[$x];
-      $upperLeft = $x > 0 ? $previous[$x - 1] : 0;
+      $left = $pixel >= $bytesPerPixel ? $current[$pixel - $bytesPerPixel] : 0;
+      $above = $previous[$pixel];
+      $upperLeft = $pixel >= $bytesPerPixel ? $previous[$pixel - $bytesPerPixel] : 0;
       if ($filter === 1) $value = ($value + $left) & 255;
       elseif ($filter === 2) $value = ($value + $above) & 255;
       elseif ($filter === 3) $value = ($value + intdiv($left + $above, 2)) & 255;
@@ -66,14 +67,48 @@ function pdf_png_logo(string $path): ?array
         $predictor = $pa <= $pb && $pa <= $pc ? $left : ($pb <= $pc ? $above : $upperLeft);
         $value = ($value + $predictor) & 255;
       }
-      $current[$x] = $value;
-      $paletteOffset = $value * 3;
-      $rgbRow .= substr($palette, $paletteOffset, 3);
+      $current[$pixel] = $value;
+    }
+    for ($x = 0; $x < $width; $x++) {
+      if ($colorType === 3) {
+        $rgbRow .= substr($palette, $current[$x] * 3, 3);
+      } else {
+        $pixelOffset = $x * $bytesPerPixel;
+        $rgbRow .= chr($current[$pixelOffset]) . chr($current[$pixelOffset + 1]) . chr($current[$pixelOffset + 2]);
+      }
     }
     $rgbRows .= $rgbRow;
     $previous = $current;
   }
   return ['width' => $width, 'height' => $height, 'data' => gzcompress($rgbRows)];
+}
+
+function pdf_uploaded_image(string $path): ?array
+{
+  $imageInfo = @getimagesize($path);
+  $imageData = @file_get_contents($path);
+  if ($imageInfo === false || $imageData === false || $imageInfo[0] < 1 || $imageInfo[1] < 1) {
+    return null;
+  }
+
+  if (($imageInfo['mime'] ?? '') === 'image/jpeg') {
+    return [
+      'width' => $imageInfo[0],
+      'height' => $imageInfo[1],
+      'data' => $imageData,
+      'filter' => '/DCTDecode',
+      'colors' => 3,
+    ];
+  }
+
+  if (($imageInfo['mime'] ?? '') === 'image/png') {
+    $png = pdf_png_logo($path);
+    if ($png !== null) {
+      return $png + ['filter' => '/FlateDecode', 'colors' => 3, 'predictor' => true];
+    }
+  }
+
+  return null;
 }
 
 function create_registration_pdf(string $path, string $registrationNumber, array $data, array $files): void
@@ -110,34 +145,57 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   $pageOne .= $field('7. Anak Ke', $value('Anak ke'), 449);
   $pageOne .= $field('8. Status di Keluarga', $value('Status di keluarga'), 428);
   $pageOne .= $field('9. Alamat Siswa', $value('Alamat siswa'), 407);
-  $pageOne .= $text('F2', 10, 55, 365, '10. Sekolah Asal');
-  $pageOne .= $field('Nama Sekolah', $value('Sekolah asal'), 344, 'a. ');
-  $pageOne .= $field('Alamat Sekolah', $value('Alamat sekolah asal'), 323, 'b. ');
-  $pageOne .= $text('F2', 10, 55, 281, '11. Nama Orang Tua');
-  $pageOne .= $field('Ayah', $value('Nama ayah'), 260, 'a. ');
-  $pageOne .= $field('Ibu', $value('Nama ibu'), 239, 'b. ');
-  $pageOne .= $field('12. Alamat Orang Tua', $value('Alamat orang tua'), 197);
-  $pageOne .= $text('F2', 10, 55, 155, '13. Pekerjaan Orang Tua');
-  $pageOne .= $field('Ayah', $value('Pekerjaan ayah'), 134, 'a. ');
-  $pageOne .= $field('Ibu', $value('Pekerjaan ibu'), 113, 'b. ');
-  $pageOne .= $field('14. Nama Wali', $value('Nama wali'), 71);
-  $pageOne .= $field('15. Alamat Wali', $value('Alamat wali'), 50);
-  $pageOne .= $field('16. Pekerjaan', $value('Pekerjaan wali'), 29);
+  $pageOne .= $field('10. Telepon Siswa', $value('Telepon siswa'), 386);
+  $pageOne .= $text('F2', 10, 55, 350, '11. Sekolah Asal');
+  $pageOne .= $field('Nama Sekolah', $value('Sekolah asal'), 329, 'a. ');
+  $pageOne .= $field('Alamat Sekolah', $value('Alamat sekolah asal'), 308, 'b. ');
+  $pageOne .= $text('F2', 10, 55, 273, '12. Nama Orang Tua');
+  $pageOne .= $field('Ayah', $value('Nama ayah'), 252, 'a. ');
+  $pageOne .= $field('Ibu', $value('Nama ibu'), 231, 'b. ');
+  $pageOne .= $field('13. Telepon Orang Tua', $value('Telepon orang tua'), 195);
+  $pageOne .= $field('14. Alamat Orang Tua', $value('Alamat orang tua'), 174);
+  $pageOne .= $text('F2', 10, 55, 137, '15. Pekerjaan Orang Tua');
+  $pageOne .= $field('Ayah', $value('Pekerjaan ayah'), 116, 'a. ');
+  $pageOne .= $field('Ibu', $value('Pekerjaan ibu'), 95, 'b. ');
+  $pageOne .= $field('16. Nama Wali', $value('Nama wali'), 71);
+  $pageOne .= $field('17. Alamat Wali', $value('Alamat wali'), 50);
+  $pageOne .= $field('18. Pekerjaan Wali', $value('Pekerjaan wali'), 29);
+  $pageOne .= $field('19. Telepon Wali', $value('Telepon wali'), 8);
 
-  $pageTwo = $header . $text('F2', 16, 190, 640, 'DATA PENDAFTARAN')
+  $registrationPage = $header . $text('F2', 16, 190, 640, 'DATA PENDAFTARAN')
     . $field('Nomor pendaftaran', $registrationNumber, 590)
     . $field('Tanggal kirim', date('d-m-Y H:i'), 569)
-    . $field('Kategori santri', $value('Kategori santri'), 548)
-    . $field('Diterima di kelas', $value('Diterima di kelas'), 527)
-    . $field('Tanggal diterima', $value('Tanggal diterima'), 506)
-    . $text('F2', 12, 55, 465, 'BERKAS TERUNGGAH');
-  $fileY = 438;
+    . $field('Kategori santri', $value('Kategori santri'), 548);
+  $uploadedImages = [];
+  $imageIndex = 2;
   foreach ($files as $label => $fileName) {
-    $pageTwo .= $field($label, $fileName, $fileY);
-    $fileY -= 21;
+    $image = pdf_uploaded_image(dirname($path) . '/' . $fileName);
+    if ($image === null) {
+      continue;
+    }
+    $image['resource'] = 'Im' . $imageIndex++;
+    $uploadedImages[] = ['label' => $label, 'image' => $image];
+  }
+  $uploadedPages = [];
+  $pageImageResources = [[], []];
+  foreach ($uploadedImages as $uploadedImage) {
+    $maxWidth = 470;
+    $maxHeight = 610;
+    if (in_array($uploadedImage['label'], ['Foto siswa', 'Bukti pembayaran'], true)) {
+      $maxWidth = 270;
+      $maxHeight = 270;
+    }
+    $scale = min($maxWidth / $uploadedImage['image']['width'], $maxHeight / $uploadedImage['image']['height']);
+    $width = $uploadedImage['image']['width'] * $scale;
+    $height = $uploadedImage['image']['height'] * $scale;
+    $x = (595 - $width) / 2;
+    $y = 390 - ($height / 2);
+    $uploadedPages[] = $header . $text('F2', 16, 150, 640, $uploadedImage['label'])
+      . "q {$width} 0 0 {$height} {$x} {$y} cm /{$uploadedImage['image']['resource']} Do Q\n";
+    $pageImageResources[] = [$uploadedImage['image']['resource'] => null];
   }
 
-  $pages = [$pageOne, $pageTwo];
+  $pages = array_merge([$pageOne, $registrationPage], $uploadedPages);
   $objects = ['<< /Type /Catalog /Pages 2 0 R >>', '', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'];
   $pageNumbers = [];
   $contentNumbers = [];
@@ -146,7 +204,15 @@ function create_registration_pdf(string $path, string $registrationNumber, array
     $imageNumber = 5;
     $objects[] = '<< /Type /XObject /Subtype /Image /Width ' . $logo['width'] . ' /Height ' . $logo['height'] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /DecodeParms << /Predictor 15 /Colors 3 /BitsPerComponent 8 /Columns ' . $logo['width'] . ' >> /Length ' . strlen($logo['data']) . " >>\nstream\n" . $logo['data'] . "\nendstream";
   }
-  $nextObject = $logo !== null ? 6 : 5;
+  $uploadedImageObjects = [];
+  foreach ($uploadedImages as $uploadedImage) {
+    $image = $uploadedImage['image'];
+    $imageNumber = $logo !== null ? 6 + count($uploadedImageObjects) : 5 + count($uploadedImageObjects);
+    $decodeParams = !empty($image['predictor']) ? ' /DecodeParms << /Predictor 15 /Colors 3 /BitsPerComponent 8 /Columns ' . $image['width'] . ' >>' : '';
+    $objects[] = '<< /Type /XObject /Subtype /Image /Width ' . $image['width'] . ' /Height ' . $image['height'] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter ' . $image['filter'] . $decodeParams . ' /Length ' . strlen($image['data']) . " >>\nstream\n" . $image['data'] . "\nendstream";
+    $uploadedImageObjects[$image['resource']] = $imageNumber;
+  }
+  $nextObject = ($logo !== null ? 6 : 5) + count($uploadedImageObjects);
   foreach ($pages as $unused) {
     $pageNumbers[] = $nextObject++;
     $contentNumbers[] = $nextObject++;
@@ -154,7 +220,16 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   $kids = implode(' ', array_map(static fn ($number) => $number . ' 0 R', $pageNumbers));
   $objects[1] = '<< /Type /Pages /Kids [' . $kids . '] /Count ' . count($pages) . ' >>';
   foreach ($pages as $pageIndex => $content) {
-    $imageResource = $imageNumber === null ? '' : ' /XObject << /Im1 ' . $imageNumber . ' 0 R >>';
+    $imageResources = [];
+    if ($logo !== null) {
+      $imageResources['Im1'] = 5;
+    }
+    if (isset($pageImageResources[$pageIndex])) {
+      foreach ($pageImageResources[$pageIndex] as $resource => $unused) {
+        $imageResources[$resource] = $uploadedImageObjects[$resource];
+      }
+    }
+    $imageResource = $imageResources === [] ? '' : ' /XObject << ' . implode(' ', array_map(static fn ($name, $number) => '/' . $name . ' ' . $number . ' 0 R', array_keys($imageResources), $imageResources)) . ' >>';
     $objects[] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' . $imageResource . ' >> /Contents ' . $contentNumbers[$pageIndex] . ' 0 R >>';
     $objects[] = '<< /Length ' . strlen($content) . " >>\nstream\n" . $content . "\nendstream";
   }
@@ -186,12 +261,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     'nama_siswa' => 'Nama siswa', 'nomor_induk' => 'Nomor induk', 'nisn' => 'NISN',
     'jenis_kelamin' => 'Jenis kelamin', 'tempat_tanggal_lahir' => 'Tempat dan tanggal lahir',
     'agama' => 'Agama', 'anak_ke' => 'Anak ke', 'status_keluarga' => 'Status di keluarga',
-    'kategori_santri' => 'Kategori santri', 'alamat_siswa' => 'Alamat siswa',
-    'diterima_kelas' => 'Diterima di kelas', 'tanggal_diterima' => 'Tanggal diterima',
+    'kategori_santri' => 'Kategori santri', 'alamat_siswa' => 'Alamat siswa', 'telepon_siswa' => 'Telepon siswa',
     'nama_sekolah' => 'Sekolah asal', 'alamat_sekolah' => 'Alamat sekolah asal',
-    'nama_ayah' => 'Nama ayah', 'nama_ibu' => 'Nama ibu', 'alamat_orang_tua' => 'Alamat orang tua',
+    'nama_ayah' => 'Nama ayah', 'nama_ibu' => 'Nama ibu', 'telepon_orang_tua' => 'Telepon orang tua', 'alamat_orang_tua' => 'Alamat orang tua',
     'pekerjaan_ayah' => 'Pekerjaan ayah', 'pekerjaan_ibu' => 'Pekerjaan ibu',
-    'nama_wali' => 'Nama wali', 'alamat_wali' => 'Alamat wali', 'pekerjaan_wali' => 'Pekerjaan wali',
+    'nama_wali' => 'Nama wali', 'alamat_wali' => 'Alamat wali', 'pekerjaan_wali' => 'Pekerjaan wali', 'telepon_wali' => 'Telepon wali',
   ];
   $data = [];
   foreach ($labels as $key => $label) {
@@ -334,23 +408,13 @@ include __DIR__ . '/includes/header.php';
             </div>
 
             <div class="field field-wide">
-              <label for="alamat-siswa">10. Alamat Siswa</label>
+              <label for="alamat-siswa">9. Alamat Siswa</label>
               <textarea id="alamat-siswa" name="alamat_siswa" placeholder="Masukkan alamat lengkap siswa" required></textarea>
             </div>
-          </div>
 
-          <div class="sub-block">
-            <h4>10. Diterima di sekolah ini</h4>
-            <div class="form-grid">
-              <div class="field">
-                <label for="kelas">a. Di Kelas</label>
-                <input id="kelas" type="text" name="diterima_kelas" placeholder="Contoh: VII-A" required />
-              </div>
-
-              <div class="field">
-                <label for="tanggal-diterima">b. Pada Tanggal</label>
-                <input id="tanggal-diterima" type="date" name="tanggal_diterima" required />
-              </div>
+            <div class="field">
+              <label for="telepon-siswa">10. Nomor Telepon Siswa <small>(opsional)</small></label>
+              <input id="telepon-siswa" type="tel" name="telepon_siswa" placeholder="Nomor telepon siswa" data-optional="true" />
             </div>
           </div>
 
@@ -385,14 +449,21 @@ include __DIR__ . '/includes/header.php';
           </div>
 
           <div class="sub-block">
-            <h4>13. Alamat Orang Tua</h4>
+            <h4>13. Nomor Telepon Orang Tua</h4>
+            <div class="field">
+              <input id="telepon-orang-tua" type="tel" name="telepon_orang_tua" placeholder="Nomor telepon orang tua" required />
+            </div>
+          </div>
+
+          <div class="sub-block">
+            <h4>14. Alamat Orang Tua</h4>
             <div class="field">
               <textarea name="alamat_orang_tua" placeholder="Alamat lengkap orang tua" required></textarea>
             </div>
           </div>
 
           <div class="sub-block">
-            <h4>14. Pekerjaan Orang Tua</h4>
+            <h4>15. Pekerjaan Orang Tua</h4>
             <div class="form-grid">
               <div class="field">
                 <label for="pekerjaan-ayah">a. Ayah</label>
@@ -407,23 +478,30 @@ include __DIR__ . '/includes/header.php';
           </div>
 
           <div class="sub-block">
-            <h4>15. Nama Wali</h4>
+            <h4>16. Nama Wali</h4>
             <div class="field">
               <input type="text" name="nama_wali" placeholder="Nama wali" data-optional="true" />
             </div>
           </div>
 
           <div class="sub-block">
-            <h4>16. Alamat Wali</h4>
+            <h4>17. Alamat Wali</h4>
             <div class="field">
               <textarea name="alamat_wali" placeholder="Alamat lengkap wali" data-optional="true"></textarea>
             </div>
           </div>
 
           <div class="sub-block">
-            <h4>17. Pekerjaan</h4>
+            <h4>18. Pekerjaan Wali</h4>
             <div class="field">
               <input type="text" name="pekerjaan_wali" placeholder="Pekerjaan wali" data-optional="true" />
+            </div>
+          </div>
+
+          <div class="sub-block">
+            <h4>19. Nomor Telepon Wali <small>(opsional)</small></h4>
+            <div class="field">
+              <input id="telepon-wali" type="tel" name="telepon_wali" placeholder="Nomor telepon wali" data-optional="true" />
             </div>
           </div>
 
@@ -454,7 +532,7 @@ include __DIR__ . '/includes/header.php';
             <label class="upload-box">
               <span>Sertifikat / Prestasi</span>
               <div class="upload-preview" aria-live="polite"></div>
-              <input type="file" name="sertifikat" accept=".pdf,image/*" />
+              <input type="file" name="sertifikat" accept=".pdf,image/*" data-optional="true" />
               <small>Upload file PDF/JPG/PNG</small>
             </label>
 
@@ -475,7 +553,7 @@ include __DIR__ . '/includes/header.php';
             <label class="upload-box">
               <span>Dokumen Lainnya</span>
               <div class="upload-preview" aria-live="polite"></div>
-              <input type="file" name="dokumen_lain" accept=".pdf,image/*" />
+              <input type="file" name="dokumen_lain" accept=".pdf,image/*" data-optional="true" />
               <small>Upload dokumen tambahan</small>
             </label>
           </div>
