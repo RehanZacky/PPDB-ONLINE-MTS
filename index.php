@@ -95,7 +95,7 @@ include __DIR__ . '/includes/header.php';
     </div>
 
     <p style="text-align:center;margin-top:2rem">
-      <a class="tbl tbl-garis" href="biaya.php">Lihat rincian biaya lengkap</a>
+      <a class="tbl tbl-garis" href="biaya.php">Lihat rincian biaya SPMB MTs</a>
     </p>
   </div>
 </section>

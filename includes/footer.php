@@ -57,6 +57,8 @@
     </div>
     <div class="garis">
       &copy; <?= date('Y') ?> <?= e($SITE['yayasan']) ?>. Informasi SPMB tahun ajaran <?= e($SITE['tahun_ajaran']) ?>.
+      <br>
+      Dibuat tim IT @rakhahadiyazid dan @androlintangmahaegan.
     </div>
   </div>
 </footer>

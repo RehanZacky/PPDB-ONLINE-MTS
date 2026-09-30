@@ -81,7 +81,7 @@ include __DIR__ . '/includes/header.php';
       </div>
       <div class="kartu">
         <h3 style="font-size:1.2rem">Jadwal dan tempat</h3>
-        <p style="margin-top:.6rem">Setiap Sabtu pukul 08.00 WIB di kantor panitia. Pilih tanggal tes saat mengisi formulir, atau konfirmasi ulang ke panitia paling lambat tiga hari sebelumnya.</p>
+        <p style="margin-top:.6rem">Jadwal tes akan diberitahukan langsung setelah pendaftaran santri melalui informasi dari panitia, komite, atau madrasah.</p>
       </div>
     </div>
   </div>
