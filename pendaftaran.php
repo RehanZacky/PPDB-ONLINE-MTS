@@ -45,6 +45,7 @@ function pdf_png_logo(string $path): ?array
     return null;
   }
   $rgbRows = '';
+  $backgroundColor = $colorType === 3 ? substr($palette, 0, 3) : null;
   $previous = array_fill(0, $width * $bytesPerPixel, 0);
   $position = 0;
   for ($row = 0; $row < $height; $row++) {
@@ -71,7 +72,8 @@ function pdf_png_logo(string $path): ?array
     }
     for ($x = 0; $x < $width; $x++) {
       if ($colorType === 3) {
-        $rgbRow .= substr($palette, $current[$x] * 3, 3);
+        $color = substr($palette, $current[$x] * 3, 3);
+        $rgbRow .= $color === $backgroundColor ? "\xff\xff\xff" : $color;
       } else {
         $pixelOffset = $x * $bytesPerPixel;
         $rgbRow .= chr($current[$pixelOffset]) . chr($current[$pixelOffset + 1]) . chr($current[$pixelOffset + 2]);
@@ -113,29 +115,33 @@ function pdf_uploaded_image(string $path): ?array
 
 function create_registration_pdf(string $path, string $registrationNumber, array $data, array $files): void
 {
+  $pdfTopOffset = 25;
   $value = static function (string $label) use ($data): string {
     return trim((string) ($data[$label] ?? ''));
   };
   $text = static function (string $font, float $size, float $x, float $y, string $content): string {
     return "BT /{$font} {$size} Tf {$x} {$y} Td (" . pdf_text(substr($content, 0, 82)) . ") Tj ET\n";
   };
+  $dataText = static function (string $font, float $size, float $x, float $y, string $content) use ($text, $pdfTopOffset): string {
+    return $text($font, $size, $x, $y + $pdfTopOffset, $content);
+  };
   $line = static function (float $x1, float $y1, float $x2, float $y2, float $width = 1): string {
     return "{$width} w {$x1} {$y1} m {$x2} {$y2} l S\n";
   };
-  $field = static function (string $label, string $fieldValue, float $y, string $prefix = '') use ($text): string {
-    return $text('F2', 10, 55, $y, $prefix . $label) . $text('F1', 10, 220, $y, ': ' . ($fieldValue !== '' ? $fieldValue : '-'));
+  $field = static function (string $label, string $fieldValue, float $y, string $prefix = '') use ($dataText): string {
+    return $dataText('F2', 10, 55, $y, $prefix . $label) . $dataText('F1', 10, 220, $y, ': ' . ($fieldValue !== '' ? $fieldValue : '-'));
   };
 
   $logo = pdf_png_logo(__DIR__ . '/assets/img/logo.png');
   $logoMark = $logo !== null ? "q 90 0 0 90 45 700 cm /Im1 Do Q\n" : '';
-  $header = $logoMark . $text('F2', 16, 145, 790, 'YAYASAN ROUDLOTUL QURAN AZ ZUHRI')
-    . $text('F2', 17, 185, 766, 'MTS ROUDLOTUL QURAN')
-    . $text('F1', 11, 155, 742, 'Desa Ngampelsari Rt. 03 Ngampelsari, Candi, Sidoarjo')
-    . $text('F1', 10, 130, 722, 'Email: mtsroudlotulquran@gmail.com   Telepon: 081230294589')
-    . $text('F1', 10, 120, 702, 'SK KEMENKUMHAM Nomor AHU-0027813.AH.01.04. Tahun 2022')
+  $header = $logoMark . $text('F2', 16, 155, 790, 'YAYASAN ROUDLOTUL QURAN AZ ZUHRI')
+    . $text('F2', 17, 195, 766, 'MTS ROUDLOTUL QURAN')
+    . $text('F1', 11, 165, 742, 'Desa Ngampelsari Rt. 03 Ngampelsari, Candi, Sidoarjo')
+    . $text('F1', 10, 155, 726, 'Email: mtsroudlotulquran@gmail.com   Telepon: 081230294589')
+    . $text('F1', 10, 150, 710, 'SK KEMENKUMHAM Nomor AHU-0027813.AH.01.04. Tahun 2022')
     . $line(45, 685, 550, 685, 1.2) . $line(45, 680, 550, 680, 3);
 
-  $pageOne = $header . $text('F2', 18, 165, 640, 'D A T A  D I R I  S I S W A');
+  $pageOne = $header . $text('F2', 18, 220, 640, 'DATA DIRI SISWA');
   $pageOne .= $field('1. Nama Siswa', $value('Nama siswa'), 575);
   $pageOne .= $field('2. Nomor Induk', $value('Nomor induk'), 554);
   $pageOne .= $field('3. NIS Nasional', $value('NISN'), 533);
@@ -146,15 +152,15 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   $pageOne .= $field('8. Status di Keluarga', $value('Status di keluarga'), 428);
   $pageOne .= $field('9. Alamat Siswa', $value('Alamat siswa'), 407);
   $pageOne .= $field('10. Telepon Siswa', $value('Telepon siswa'), 386);
-  $pageOne .= $text('F2', 10, 55, 350, '11. Sekolah Asal');
+  $pageOne .= $dataText('F2', 10, 55, 350, '11. Sekolah Asal');
   $pageOne .= $field('Nama Sekolah', $value('Sekolah asal'), 329, 'a. ');
   $pageOne .= $field('Alamat Sekolah', $value('Alamat sekolah asal'), 308, 'b. ');
-  $pageOne .= $text('F2', 10, 55, 273, '12. Nama Orang Tua');
+  $pageOne .= $dataText('F2', 10, 55, 273, '12. Nama Orang Tua');
   $pageOne .= $field('Ayah', $value('Nama ayah'), 252, 'a. ');
   $pageOne .= $field('Ibu', $value('Nama ibu'), 231, 'b. ');
   $pageOne .= $field('13. Telepon Orang Tua', $value('Telepon orang tua'), 195);
   $pageOne .= $field('14. Alamat Orang Tua', $value('Alamat orang tua'), 174);
-  $pageOne .= $text('F2', 10, 55, 137, '15. Pekerjaan Orang Tua');
+  $pageOne .= $dataText('F2', 10, 55, 137, '15. Pekerjaan Orang Tua');
   $pageOne .= $field('Ayah', $value('Pekerjaan ayah'), 116, 'a. ');
   $pageOne .= $field('Ibu', $value('Pekerjaan ibu'), 95, 'b. ');
   $pageOne .= $field('16. Nama Wali', $value('Nama wali'), 71);
@@ -162,7 +168,7 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   $pageOne .= $field('18. Pekerjaan Wali', $value('Pekerjaan wali'), 29);
   $pageOne .= $field('19. Telepon Wali', $value('Telepon wali'), 8);
 
-  $registrationPage = $header . $text('F2', 16, 190, 640, 'DATA PENDAFTARAN')
+  $registrationPage = $header . $text('F2', 16, 210, 640, 'DATA PENDAFTARAN')
     . $field('Nomor pendaftaran', $registrationNumber, 590)
     . $field('Tanggal kirim', date('d-m-Y H:i'), 569)
     . $field('Kategori santri', $value('Kategori santri'), 548);

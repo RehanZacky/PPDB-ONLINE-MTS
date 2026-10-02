@@ -13,7 +13,7 @@ $PAGE = [
 include __DIR__ . '/includes/header.php';
 ?>
 
-<section class="blok blok-mint-tua">
+<section class="blok blok-mint-tua gelombang-hero">
   <div class="wadah">
     <div class="kepala">
       <span class="label">Jadwal</span>
