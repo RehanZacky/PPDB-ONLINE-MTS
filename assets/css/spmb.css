@@ -203,6 +203,24 @@ h1, h2, h3, h4 {
 .alur-hero h2 { color: #fff; }
 .alur-hero .kepala p { color: rgba(255, 255, 255, .9); }
 .alur-hero .label { background: rgba(255, 255, 255, .18); color: #fff; }
+.biaya-hero {
+  background-image: linear-gradient(rgba(6, 78, 59, .76), rgba(6, 78, 59, .82)), url('../img/belajar.jpeg');
+  background-position: center 52%;
+  background-size: cover;
+  color: #fff;
+}
+.biaya-hero h2 { color: #fff; }
+.biaya-hero .kepala p { color: rgba(255, 255, 255, .9); }
+.biaya-hero .label { background: rgba(255, 255, 255, .18); color: #fff; }
+.gelombang-hero {
+  background-image: linear-gradient(rgba(6, 78, 59, .76), rgba(6, 78, 59, .82)), url('../img/materi.jpeg');
+  background-position: center 48%;
+  background-size: cover;
+  color: #fff;
+}
+.gelombang-hero h2 { color: #fff; }
+.gelombang-hero .kepala p { color: rgba(255, 255, 255, .9); }
+.gelombang-hero .label { background: rgba(255, 255, 255, .18); color: #fff; }
 .blok-hijau { background: var(--hijau); color: #fff; }
 .blok-hijau h2, .blok-hijau h3 { color: #fff; }
 
@@ -220,7 +238,14 @@ h1, h2, h3, h4 {
 .blok-hijau .label { background: rgba(255,255,255,.16); color: #fff; }
 
 /* ---------- hero ---------- */
-.hero { background: linear-gradient(160deg, var(--hijau) 0%, var(--hijau-tua) 100%); color: #fff; position: relative; overflow: hidden; }
+.hero {
+  background-image: linear-gradient(rgba(6, 78, 59, .82), rgba(6, 78, 59, .88)), url('../img/belajar.jpeg');
+  background-position: center 58%;
+  background-size: cover;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
 .hero::after {
   content: ""; position: absolute; right: -120px; top: -120px;
   width: 420px; height: 420px; border-radius: 50%;

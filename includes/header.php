@@ -33,7 +33,7 @@ $HALAMAN = [
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/spmb.css?v=20260930-background">
+<link rel="stylesheet" href="assets/css/spmb.css?v=20261002-hero-photo">
 </head>
 <body>
 
