@@ -57,36 +57,6 @@ include __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<!-- ============ TES SELEKSI ============ -->
-<section class="blok">
-  <div class="wadah">
-    <div class="kepala">
-      <span class="label">Tes seleksi</span>
-      <h2>Apa yang diujikan</h2>
-      <p>Tes dipakai untuk menempatkan santri di kelas yang sesuai, bukan untuk menggugurkan. Tidak perlu bimbingan belajar khusus.</p>
-    </div>
-
-    <div class="grid-2" style="max-width:56rem;margin-inline:auto">
-      <div class="kartu">
-        <h3 style="font-size:1.2rem">Membaca Al-Qur'an</h3>
-        <p style="margin-top:.6rem">Calon santri membaca beberapa ayat yang ditunjuk penguji. Yang dinilai adalah kelancaran dan makhraj. Yang belum lancar masuk kelas tahsin dasar di semester pertama.</p>
-      </div>
-      <div class="kartu">
-        <h3 style="font-size:1.2rem">Tes tulis</h3>
-        <p style="margin-top:.6rem">Matematika dan Bahasa Indonesia setingkat kelas 6 SD, sekitar 40 soal pilihan ganda. Waktu pengerjaan 60 menit.</p>
-      </div>
-      <div class="kartu">
-        <h3 style="font-size:1.2rem">Wawancara</h3>
-        <p style="margin-top:.6rem">Calon santri ditanya kesiapan mondok dan motivasinya. Wali ditanya harapan dan kondisi keluarga. Berlangsung sekitar 20 menit dan wali wajib hadir.</p>
-      </div>
-      <div class="kartu">
-        <h3 style="font-size:1.2rem">Jadwal dan tempat</h3>
-        <p style="margin-top:.6rem">Jadwal tes akan diberitahukan langsung setelah pendaftaran santri melalui informasi dari panitia, komite, atau madrasah.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ============ CARA BAYAR ============ -->
 <section class="blok blok-mint">
   <div class="wadah">
