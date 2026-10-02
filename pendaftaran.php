@@ -367,7 +367,7 @@ endif;
       <h2>Daftar calon santri baru</h2>
     </div>
 
-    <form class="ppdb-form" action="pendaftaran.php" method="post" enctype="multipart/form-data">
+    <form class="ppdb-form" action="pendaftaran.php" method="post" enctype="multipart/form-data" novalidate>
       <div class="step-indicator" aria-label="Tahap pendaftaran">
         <div class="step-item active" data-step="0">
           <span class="step-dot">1</span>
@@ -565,6 +565,7 @@ endif;
 
           <div class="step-actions">
             <button type="button" class="tbl tbl-utama next-step" data-next="1">Lanjut</button>
+            <button type="button" class="tbl tbl-garis skip-step" data-next="1">Lewati</button>
           </div>
         </div>
       </div>
@@ -619,6 +620,7 @@ endif;
           <div class="step-actions split">
             <button type="button" class="tbl tbl-garis prev-step">Kembali</button>
             <button type="button" class="tbl tbl-utama next-step" data-next="2">Lanjut</button>
+            <button type="button" class="tbl tbl-garis skip-step" data-next="2">Lewati</button>
           </div>
         </div>
       </div>
@@ -700,10 +702,12 @@ endif;
   var stepItems = Array.prototype.slice.call(document.querySelectorAll('.step-item'));
   var stepLines = Array.prototype.slice.call(document.querySelectorAll('.step-line'));
   var nextButtons = Array.prototype.slice.call(form.querySelectorAll('.next-step'));
+  var skipButtons = Array.prototype.slice.call(form.querySelectorAll('.skip-step'));
   var prevButtons = Array.prototype.slice.call(form.querySelectorAll('.prev-step'));
   var submitButton = form.querySelector('.submit-confirm');
   var paymentInput = form.querySelector('input[name="bukti_pembayaran"]');
   var currentStep = 0;
+  var skipValidation = false;
 
   function isOptionalField(field) {
     return field.dataset && field.dataset.optional === 'true';
@@ -799,9 +803,9 @@ endif;
   function syncSubmitState() {
     if (!submitButton || !paymentInput) return;
 
-    var ready = !!(paymentInput.files && paymentInput.files.length > 0);
+    var ready = skipValidation || !!(paymentInput.files && paymentInput.files.length > 0);
     submitButton.disabled = !ready;
-    submitButton.title = ready ? 'Kirim pendaftaran' : 'Upload bukti pembayaran terlebih dahulu';
+    submitButton.title = skipValidation ? 'Kirim untuk cek hasil dan PDF' : (ready ? 'Kirim pendaftaran' : 'Upload bukti pembayaran terlebih dahulu');
   }
 
   function saveDraft() {
@@ -858,6 +862,18 @@ endif;
     });
   });
 
+  skipButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var targetIndex = Number(button.dataset.next);
+      if (targetIndex >= 0 && targetIndex < steps.length) {
+        skipValidation = true;
+        currentStep = targetIndex;
+        updateStepView();
+        syncSubmitState();
+      }
+    });
+  });
+
   prevButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       validateAndAdvance(currentStep - 1);
@@ -865,7 +881,7 @@ endif;
   });
 
   form.addEventListener('submit', function (event) {
-    if (!paymentInput || !paymentInput.files || !paymentInput.files.length) {
+    if (!skipValidation && (!paymentInput || !paymentInput.files || !paymentInput.files.length)) {
       event.preventDefault();
       if (paymentInput && typeof paymentInput.reportValidity === 'function') {
         paymentInput.reportValidity();
@@ -873,7 +889,7 @@ endif;
       return;
     }
 
-    if (!isStepComplete(steps[steps.length - 1])) {
+    if (!skipValidation && !isStepComplete(steps[steps.length - 1])) {
       event.preventDefault();
       currentStep = steps.length - 1;
       updateStepView();

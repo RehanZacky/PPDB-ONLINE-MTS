@@ -145,7 +145,7 @@ include __DIR__ . '/includes/header.php';
 <section class="blok blok-mint">
   <div class="wadah">
     <div class="kepala">
-      <span class="label">Enam langkah</span>
+      <span class="label">Langkah-langkah</span>
       <h2>Dari isi formulir sampai daftar ulang</h2>
       <p>Seluruh proses memakan waktu sekitar dua pekan. Berikut tiga langkah pertamanya.</p>
     </div>
@@ -155,7 +155,7 @@ include __DIR__ . '/includes/header.php';
     </figure>
 
     <p style="text-align:center;margin-top:2.4rem">
-      <a class="tbl tbl-garis" href="alur.php">Lihat enam langkah dan syarat berkas</a>
+      <a class="tbl tbl-garis" href="alur.php">Lihat alur dan syarat berkas</a>
     </p>
   </div>
 </section>

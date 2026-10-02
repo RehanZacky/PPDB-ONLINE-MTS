@@ -4,7 +4,7 @@ require __DIR__ . '/config.php';
 $PAGE = [
     'slug'      => 'alur',
     'judul'     => 'Alur & Tata Cara Pendaftaran',
-    'deskripsi' => 'Enam langkah pendaftaran santri baru ' . $SITE['lembaga'] . ', mulai dari mengisi formulir sampai daftar ulang, lengkap dengan syarat berkas.',
+    'deskripsi' => 'Alur pendaftaran santri baru ' . $SITE['lembaga'] . ', mulai dari mengisi formulir sampai daftar ulang, lengkap dengan syarat berkas.',
 ];
 
 include __DIR__ . '/includes/header.php';
@@ -15,7 +15,7 @@ include __DIR__ . '/includes/header.php';
     <div class="kepala">
       <span class="label">Tata cara</span>
       <h2>Alur pendaftaran</h2>
-      <p>Enam langkah, kira-kira dua pekan sejak formulir masuk sampai daftar ulang selesai. Panitia mendampingi lewat WhatsApp di setiap langkah.</p>
+      <p>Proses pendaftaran berlangsung kira-kira dua pekan sejak formulir masuk sampai daftar ulang selesai. Panitia mendampingi lewat WhatsApp di setiap langkah.</p>
     </div>
   </div>
 </section>
@@ -121,6 +121,7 @@ include __DIR__ . '/includes/header.php';
       <div class="kartu">
         <h3 style="font-size:1.2rem">Tunai di kantor</h3>
         <p style="margin-top:.6rem"><?= e($SITE['alamat']) ?></p>
+        <p><a href="<?= e($SITE['maps']) ?>" target="_blank" rel="noopener" style="color:var(--hijau);font-weight:700">Buka di Google Maps</a></p>
         <p style="margin-top:.8rem;font-size:.9rem;color:var(--redup)">Jam layanan <?= e($SITE['jam_layanan']) ?>. Kuitansi diberikan saat itu juga.</p>
       </div>
     </div>

@@ -156,15 +156,10 @@ $ALUR = [
 
 $SYARAT = [
     ['Fotokopi ijazah atau surat keterangan lulus SD/MI', '2 lembar, boleh menyusul'],
-    ['Fotokopi rapor SD/MI semester 1 sampai 5', 'dilegalisir sekolah asal'],
     ['Fotokopi akta kelahiran', '2 lembar'],
-    ['Fotokopi kartu keluarga dan KTP kedua orang tua', 'masing-masing 2 lembar'],
-    ['Pas foto berwarna 3×4', '4 lembar, latar biru'],
-    ['Fotokopi KK/KTP', '1 lembar'],
-    ['Foto ananda santriwan/santriwati', '1 lembar'],
+    ['Pas foto berwarna 3×4 dan foto ananda santriwan/santriwati', '4 lembar pas foto berlatar biru dan 1 lembar foto ananda'],
     ['Bisa membaca Al-Qur’an', 'untuk semua calon santri'],
     ['Minimal usia 13 tahun', 'saat mendaftar'],
-    ['Surat keterangan sehat dari puskesmas', 'untuk semua calon santri'],
     ['Fotokopi KIP, KKS, atau kartu PKH', 'bila mengajukan keringanan biaya'],
     ['Fotokopi sertifikat prestasi', 'bila mengajukan beasiswa prestasi'],
 ];
