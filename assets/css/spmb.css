@@ -289,6 +289,8 @@ h1, h2, h3, h4 {
   gap: 1rem 1.5rem;
 }
 
+.form-grid-student-final { margin-top: 2.5rem; }
+
 .field {
   display: flex;
   flex-direction: column;
@@ -394,6 +396,30 @@ h1, h2, h3, h4 {
   resize: vertical;
 }
 
+.field textarea#riwayat-penyakit {
+  min-height: 3rem;
+  height: 3rem;
+}
+
+.field[hidden] { display: none; }
+.upload-box[hidden] { display: none; }
+.other-field { margin-top: .75rem; }
+
+.konfirmasi-dialog {
+  width: min(32rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 1.5rem;
+  border: 1px solid var(--garis);
+  border-radius: 8px;
+  color: var(--judul);
+  box-shadow: 0 24px 70px rgba(8, 29, 19, .24);
+}
+
+.konfirmasi-dialog::backdrop { background: rgba(8, 29, 19, .58); }
+.konfirmasi-dialog h2 { margin: 0 0 .75rem; font-size: 1.35rem; }
+.konfirmasi-dialog p { margin: 0; color: var(--redup); }
+.konfirmasi-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
@@ -412,6 +438,8 @@ h1, h2, h3, h4 {
   margin: 0 0 .9rem;
   color: var(--judul);
 }
+
+.sub-block h4.ibu-heading { margin-top: 1rem; }
 
 .upload-grid {
   display: grid;

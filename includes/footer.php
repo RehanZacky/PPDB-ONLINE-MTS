@@ -1,6 +1,8 @@
 </main>
 
 <!-- ajakan daftar -->
+<?php if (($PAGE['slug'] ?? '') !== 'pendaftaran'): ?>
+<!-- ajakan daftar -->
 <section class="blok blok-mint-tua" aria-labelledby="ajakan-daftar">
   <div class="wadah" style="text-align:center">
     <div class="kepala">
@@ -11,6 +13,7 @@
     <a class="tbl tbl-utama" href="<?= e(link_daftar()) ?>">Daftar sekarang</a>
   </div>
 </section>
+<?php endif; ?>
 
 <!-- kontak panitia -->
 <section class="blok blok-mint" id="kontak">
