@@ -1,7 +1,7 @@
 </main>
 
 <!-- ajakan daftar -->
-<?php if (($PAGE['slug'] ?? '') !== 'pendaftaran'): ?>
+<?php if (!in_array($PAGE['slug'] ?? '', ['index', 'pendaftaran'], true)): ?>
 <!-- ajakan daftar -->
 <section class="blok blok-mint-tua" aria-labelledby="ajakan-daftar">
   <div class="wadah" style="text-align:center">
