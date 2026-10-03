@@ -159,10 +159,10 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   $logo = pdf_png_logo(__DIR__ . '/assets/img/logo.png');
   $logoMark = $logo !== null ? "q 90 0 0 90 45 700 cm /Im1 Do Q\n" : '';
   $header = $logoMark . $text('F2', 16, 155, 790, 'YAYASAN ROUDLOTUL QURAN AZ ZUHRI')
-    . $text('F2', 17, 195, 766, 'MTS ROUDLOTUL QURAN')
-    . $text('F1', 11, 165, 742, 'Desa Ngampelsari Rt. 03 Ngampelsari, Candi, Sidoarjo')
-    . $text('F1', 10, 155, 726, 'Email: mtsroudlotulquran@gmail.com   Telepon: 081230294589')
-    . $text('F1', 10, 150, 710, 'SK KEMENKUMHAM Nomor AHU-0027813.AH.01.04. Tahun 2022')
+    . $text('F2', 17, 210, 766, 'MTS ROUDLOTUL QURAN')
+    . $text('F1', 11, 170, 742, 'Desa Ngampelsari Rt. 03 Ngampelsari, Candi, Sidoarjo')
+    . $text('F1', 10, 165, 726, 'Email: mtsroudlotulquran@gmail.com   Telepon: 081230294589')
+    . $text('F1', 10, 160, 710, 'SK KEMENKUMHAM Nomor AHU-0027813.AH.01.04. Tahun 2022')
     . $line(45, 685, 550, 685, 1.2) . $line(45, 680, 550, 680, 3);
 
   $pageOne = $header . $text('F2', 18, 220, 640, 'DATA DIRI SISWA');
@@ -174,23 +174,24 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   $pageOne .= $field('6. Agama', $value('Agama'), 470);
   $pageOne .= $field('7. Anak Ke', $value('Anak ke'), 449);
   $pageOne .= $field('8. Status di Keluarga', $value('Status di keluarga'), 428);
-  $pageOne .= $field('9. Alamat Siswa', $value('Alamat siswa'), 407);
-  $pageOne .= $field('10. Telepon Siswa', $value('Telepon siswa'), 386);
-  $pageOne .= $dataText('F2', 10, 55, 350, '11. Sekolah Asal');
-  $pageOne .= $field('Nama Sekolah', $value('Sekolah asal'), 329, 'a. ');
-  $pageOne .= $field('Alamat Sekolah', $value('Alamat sekolah asal'), 308, 'b. ');
-  $pageOne .= $dataText('F2', 10, 55, 273, '12. Nama Orang Tua');
+  $pageOne .= $field('9. Kategori Santri', $value('Kategori santri'), 407);
+  $pageOne .= $field('10. Alamat Siswa', $value('Alamat siswa'), 386);
+  $pageOne .= $field('11. Telepon Siswa', $value('Telepon siswa'), 365);
+  $pageOne .= $dataText('F2', 10, 55, 340, '12. Sekolah Asal');
+  $pageOne .= $field('Nama Sekolah', $value('Sekolah asal'), 319, 'a. ');
+  $pageOne .= $field('Alamat Sekolah', $value('Alamat sekolah asal'), 298, 'b. ');
+  $pageOne .= $dataText('F2', 10, 55, 273, '13. Nama Orang Tua');
   $pageOne .= $field('Ayah', $value('Nama ayah'), 252, 'a. ');
   $pageOne .= $field('Ibu', $value('Nama ibu'), 231, 'b. ');
-  $pageOne .= $field('13. Telepon Orang Tua', $value('Telepon orang tua'), 195);
-  $pageOne .= $field('14. Alamat Orang Tua', $value('Alamat orang tua'), 174);
-  $pageOne .= $dataText('F2', 10, 55, 137, '15. Pekerjaan Orang Tua');
-  $pageOne .= $field('Ayah', $value('Pekerjaan ayah'), 116, 'a. ');
-  $pageOne .= $field('Ibu', $value('Pekerjaan ibu'), 95, 'b. ');
-  $pageOne .= $field('16. Nama Wali', $value('Nama wali'), 71);
-  $pageOne .= $field('17. Alamat Wali', $value('Alamat wali'), 50);
-  $pageOne .= $field('18. Pekerjaan Wali', $value('Pekerjaan wali'), 29);
-  $pageOne .= $field('19. Telepon Wali', $value('Telepon wali'), 8);
+  $pageOne .= $field('14. Telepon Orang Tua', $value('Telepon orang tua'), 220);
+  $pageOne .= $field('15. Alamat Orang Tua', $value('Alamat orang tua'), 199);
+  $pageOne .= $dataText('F2', 10, 55, 178, '16. Pekerjaan Orang Tua');
+  $pageOne .= $field('Ayah', $value('Pekerjaan ayah'), 157, 'a. ');
+  $pageOne .= $field('Ibu', $value('Pekerjaan ibu'), 136, 'b. ');
+  $pageOne .= $field('17. Nama Wali', $value('Nama wali'), 115);
+  $pageOne .= $field('18. Alamat Wali', $value('Alamat wali'), 94);
+  $pageOne .= $field('19. Pekerjaan Wali', $value('Pekerjaan wali'), 73);
+  $pageOne .= $field('20. Telepon Wali', $value('Telepon wali'), 52);
 
   $registrationPage = $header . $text('F2', 16, 210, 640, 'DATA PENDAFTARAN')
     . $field('Nomor pendaftaran', $registrationNumber, 590)
@@ -204,7 +205,7 @@ function create_registration_pdf(string $path, string $registrationNumber, array
   }
   $dataPages = [];
   foreach (array_chunk($dataRows, 33) as $pageIndex => $pageRows) {
-    $dataPage = $header . $text('F2', 16, 130, 650, $pageIndex === 0 ? 'DATA DIRI SISWA & KELUARGA' : 'DATA DIRI (LANJUTAN)');
+    $dataPage = $header . $text('F2', 16, 170, 650, $pageIndex === 0 ? 'DATA DIRI SISWA & KELUARGA' : 'DATA DIRI (LANJUTAN)');
     foreach ($pageRows as $rowIndex => $row) {
       $dataPage .= $text('F1', 9, 55, 620 - ($rowIndex * 18), $row);
     }
