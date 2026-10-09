@@ -1,4 +1,9 @@
 <?php
+if (!headers_sent()) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+}
+
 /* ==========================================================================
    config.php — SATU-SATUNYA FILE YANG PERLU DIEDIT RUTIN
    Semua teks, tanggal, dan angka di halaman SPMB diambil dari sini.
@@ -30,6 +35,15 @@ $SITE = [
     'alamat'        => 'Ngampelsari, Kec. Candi, Kabupaten Sidoarjo, Jawa Timur 61271',
     'maps'          => 'https://www.google.com/maps/search/?api=1&query=PP.+ROUDLOTUL+QUR%27AN+-+2+NGAMPELSARI',
     'jam_layanan'   => 'Senin – Sabtu, 08.00 – 15.00 WIB',
+    'rekening_bank' => 'Bank Syariah Indonesia',
+    'rekening_nomor' => '1234567890',
+    'rekening_nama' => 'Yayasan Roudlotul Qur\'an Az Zuhri',
+    'rekening_options' => [
+        ['bank' => 'Bank Syariah Indonesia', 'nomor' => '1234567890', 'nama' => 'Yayasan Roudlotul Qur\'an Az Zuhri'],
+    ],
+    'whatsapp_options' => [
+        ['nomor' => '6281230294589', 'tampil' => '081230294589', 'nama' => 'Ustaz Fauzi'],
+    ],
 
     // Link formulir pendaftaran. Jika diisi, tombol daftar akan mengarah ke halaman
     // formulir lokal agar calon wali bisa mengisi data pendaftaran sendiri.
@@ -129,7 +143,7 @@ $ALUR = [
     ],
     [
         'judul' => 'Bayar biaya pendaftaran',
-        'isi'   => 'Rp250.000, ditransfer ke rekening panitia atau dibayar tunai di kantor. Kirim bukti pembayaran ke WhatsApp panitia untuk menerima nomor pendaftaran.',
+        'isi'   => rp((int) ($BIAYA['mukim']['awal'][0][1] ?? 0)) . ', ditransfer ke rekening panitia atau dibayar tunai di kantor. Kirim bukti pembayaran ke WhatsApp panitia untuk menerima nomor pendaftaran.',
         'meta'  => 'Nomor pendaftaran terbit di hari yang sama',
     ],
     [
@@ -170,6 +184,90 @@ $SYARAT_JALUR = [
     ['Bisa membaca Al-Qur’an', ''],
     ['Minimal usia 13 tahun', ''],
 ];
+
+$PERSYARATAN_MTS = [
+    'Fotokopi KTP ayah dan ibu',
+    'Fotokopi KK',
+    'Fotokopi akta kelahiran',
+    'Foto santri 3x4 (2 lembar)',
+    'Print out NISN',
+    'Surat keterangan lulus/ijazah',
+    'Bisa membaca Al-Quran dengan baik dan benar',
+    'Mengisi persetujuan siswa non-mukim',
+    'Menerima murid pindahan (mutasi)',
+];
+
+$RINCIAN_BIAYA_MTS = [
+    ['Formulir', 0, 'Gratis apabila sudah mem-follow akun media sosial'],
+    ['Kegiatan orientasi', 100000, ''],
+    ['Uang gedung', 500000, ''],
+    ['SPP', 200000, ''],
+    ['Seragam', 750000, 'Putra: 3 setel kain seragam, bet, peci, dan sabuk. Putri: 3 setel kain seragam, bet, dan kerudung.'],
+    ['Kegiatan ODL, P5, dan lain-lain', 200000, ''],
+    ['Uang semester', 250000, ''],
+];
+
+/* Nilai yang disimpan admin berada di luar source code agar dapat diedit dari panel. */
+$settingsPath = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'settings.json';
+if (is_file($settingsPath)) {
+    $savedSettings = json_decode((string) file_get_contents($settingsPath), true);
+    if (is_array($savedSettings)) {
+        if (isset($savedSettings['SITE']) && is_array($savedSettings['SITE'])) {
+            $SITE = array_replace($SITE, $savedSettings['SITE']);
+        }
+
+        if (!isset($savedSettings['SITE']['rekening_options']) || !is_array($SITE['rekening_options']) || !$SITE['rekening_options']) {
+            $SITE['rekening_options'] = [[
+                'bank' => (string) $SITE['rekening_bank'],
+                'nomor' => (string) $SITE['rekening_nomor'],
+                'nama' => (string) $SITE['rekening_nama'],
+            ]];
+        }
+        if (!isset($savedSettings['SITE']['whatsapp_options']) || !is_array($SITE['whatsapp_options']) || !$SITE['whatsapp_options']) {
+            $SITE['whatsapp_options'] = [[
+                'nomor' => (string) $SITE['wa'],
+                'tampil' => (string) $SITE['wa_tampil'],
+                'nama' => (string) $SITE['wa_nama'],
+            ]];
+            if (!empty($SITE['wa2']) && $SITE['wa2'] !== $SITE['wa']) {
+                $SITE['whatsapp_options'][] = [
+                    'nomor' => (string) $SITE['wa2'],
+                    'tampil' => (string) ($SITE['wa2_tampil'] ?? $SITE['wa2']),
+                    'nama' => (string) ($SITE['wa2_nama'] ?? ''),
+                ];
+            }
+        }
+        $SITE['rekening_bank'] = (string) ($SITE['rekening_options'][0]['bank'] ?? $SITE['rekening_bank']);
+        $SITE['rekening_nomor'] = (string) ($SITE['rekening_options'][0]['nomor'] ?? $SITE['rekening_nomor']);
+        $SITE['rekening_nama'] = (string) ($SITE['rekening_options'][0]['nama'] ?? $SITE['rekening_nama']);
+        $SITE['wa'] = (string) ($SITE['whatsapp_options'][0]['nomor'] ?? $SITE['wa']);
+        $SITE['wa_tampil'] = (string) ($SITE['whatsapp_options'][0]['tampil'] ?? $SITE['wa_tampil']);
+        $SITE['wa_nama'] = (string) ($SITE['whatsapp_options'][0]['nama'] ?? $SITE['wa_nama']);
+        foreach ($SITE['whatsapp_options'] as &$whatsappOption) {
+            $displayNumber = (string) ($whatsappOption['tampil'] ?? '');
+            $actualNumber = (string) ($whatsappOption['nomor'] ?? '');
+            if ($displayNumber === '' || wa_nomor($displayNumber) !== wa_nomor($actualNumber)) {
+                $whatsappOption['tampil'] = $actualNumber;
+            }
+        }
+        unset($whatsappOption);
+        if (isset($savedSettings['GELOMBANG']) && is_array($savedSettings['GELOMBANG'])) {
+            $GELOMBANG = $savedSettings['GELOMBANG'];
+        }
+        if (isset($savedSettings['BIAYA']) && is_array($savedSettings['BIAYA'])) {
+            $BIAYA = $savedSettings['BIAYA'];
+        }
+        if (isset($savedSettings['SYARAT']) && is_array($savedSettings['SYARAT'])) {
+            $SYARAT = $savedSettings['SYARAT'];
+        }
+        if (isset($savedSettings['PERSYARATAN_MTS']) && is_array($savedSettings['PERSYARATAN_MTS'])) {
+            $PERSYARATAN_MTS = $savedSettings['PERSYARATAN_MTS'];
+        }
+        if (isset($savedSettings['RINCIAN_BIAYA_MTS']) && is_array($savedSettings['RINCIAN_BIAYA_MTS'])) {
+            $RINCIAN_BIAYA_MTS = $savedSettings['RINCIAN_BIAYA_MTS'];
+        }
+    }
+}
 
 /* --------------------------------------------------------------------------
    5. PROGRAM DAN TANYA JAWAB
@@ -344,11 +442,27 @@ function gelombang_kini(array $list): ?array
 }
 
 /** Link WhatsApp lengkap dengan pesan awal. */
+function wa_nomor(string $nomor): string
+{
+    $nomor = preg_replace('/\D+/', '', $nomor) ?: '';
+    if (strpos($nomor, '0') === 0) {
+        $nomor = '62' . substr($nomor, 1);
+    }
+
+    return $nomor;
+}
+
+function wa_link(string $nomor, string $pesan = ''): string
+{
+    $link = 'https://wa.me/' . wa_nomor($nomor);
+    return $pesan === '' ? $link : $link . '?text=' . rawurlencode($pesan);
+}
+
 function wa(string $pesan = 'Assalamualaikum, saya ingin bertanya tentang SPMB.'): string
 {
     global $SITE;
 
-    return 'https://wa.me/' . $SITE['wa'] . '?text=' . rawurlencode($pesan);
+    return wa_link($SITE['wa'], $pesan);
 }
 
 /** Link tombol daftar: formulir online bila diisi, kalau tidak jatuh ke WhatsApp. */

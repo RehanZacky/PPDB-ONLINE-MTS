@@ -1,0 +1,293 @@
+{
+    "SITE": {
+        "yayasan": "Yayasan Roudlotul Qur'an Az Zuhri",
+        "lembaga": "Pon.Pes & MTs Tahfidh Roudlotul Qur'an",
+        "singkat": "MTs Tahfidh Roudlotul Qur'an",
+        "tahun_ajaran": "2027\/2028",
+        "logo": "assets\/img\/logo.png",
+        "url_profil": "https:\/\/mtstahfidhroudlotulquran.sch.id",
+        "wa": "6281230294589",
+        "wa_tampil": "081230294589",
+        "wa_nama": "Ustaz Fauzi",
+        "wa2": "629676947754",
+        "wa2_tampil": "08937981011912",
+        "wa2_nama": "rakha",
+        "email": "spmb@mtstahfidhroudlotulquran.sch.id",
+        "alamat": "Ngampelsari, Kec. Candi, Kabupaten Sidoarjo, Jawa Timur 61271",
+        "maps": "https:\/\/www.google.com\/maps\/search\/?api=1&query=PP.+ROUDLOTUL+QUR%27AN+-+2+NGAMPELSARI",
+        "jam_layanan": "Senin – Sabtu, 08.00 – 15.00 WIB",
+        "rekening_bank": "Bank Syariah Indonesia",
+        "rekening_nomor": "1234567890",
+        "rekening_nama": "Yayasan Roudlotul Qur'an Az Zuhri",
+        "rekening_options": [
+            {
+                "bank": "Bank Syariah Indonesia",
+                "nomor": "1234567890",
+                "nama": "Yayasan Roudlotul Qur'an Az Zuhri"
+            },
+            {
+                "bank": "bank negara indonesia",
+                "nomor": "912345987121",
+                "nama": "rakha"
+            }
+        ],
+        "whatsapp_options": [
+            {
+                "nomor": "6281230294589",
+                "tampil": "081230294589",
+                "nama": "Ustaz Fauzi"
+            },
+            {
+                "nomor": "629676947754",
+                "tampil": "08937981011912",
+                "nama": "rakha"
+            }
+        ],
+        "link_formulir": "pendaftaran.php",
+        "kuota": 40,
+        "rombel": 2,
+        "target_juz": 10,
+        "rasio": "1 : 12"
+    },
+    "GELOMBANG": [
+        {
+            "nama": "Gelombang 1",
+            "mulai": "2026-09-01",
+            "selesai": "2026-11-30",
+            "potongan": 1000000,
+            "catatan": "Potongan terbesar dan pilihan kamar asrama paling leluasa."
+        },
+        {
+            "nama": "Gelombang 2",
+            "mulai": "2026-12-01",
+            "selesai": "2027-02-28",
+            "potongan": 500000,
+            "catatan": "Kuota santri mukim biasanya mulai menipis di gelombang ini."
+        },
+        {
+            "nama": "Gelombang 3",
+            "mulai": "2027-03-01",
+            "selesai": "2027-05-31",
+            "potongan": 1000000000,
+            "catatan": "Hanya dibuka bila kuota masih tersisa."
+        },
+        {
+            "nama": "Gelombang 4",
+            "mulai": "2028-01-01",
+            "selesai": "2026-10-25",
+            "potongan": 10000000000,
+            "catatan": "melbuo"
+        }
+    ],
+    "BIAYA": {
+        "mukim": {
+            "label": "Santri Mukim",
+            "ket": "Tinggal di asrama pesantren",
+            "awal": [
+                [
+                    "Biaya pendaftaran",
+                    250000,
+                    ""
+                ],
+                [
+                    "Daftar ulang dan administrasi",
+                    750000,
+                    ""
+                ],
+                [
+                    "Seragam",
+                    1100000,
+                    "4 stel, batik, olahraga, dan kerudung"
+                ],
+                [
+                    "Kitab dan buku pelajaran",
+                    600000,
+                    ""
+                ],
+                [
+                    "Perlengkapan asrama",
+                    800000,
+                    "kasur, bantal, lemari"
+                ],
+                [
+                    "Infak pengembangan",
+                    2500000,
+                    "komponen yang dipotong sesuai gelombang"
+                ],
+                [
+                    "pungutan infromatika",
+                    10000000,
+                    ""
+                ]
+            ],
+            "bulanan": [
+                [
+                    "Syahriah (SPP)",
+                    350000,
+                    ""
+                ],
+                [
+                    "Asrama dan makan tiga kali",
+                    600000,
+                    ""
+                ],
+                [
+                    "Laundry dan kesehatan",
+                    75000,
+                    ""
+                ],
+                [
+                    "jajan",
+                    1000000,
+                    ""
+                ]
+            ]
+        },
+        "nonmukim": {
+            "label": "Santri Non-Mukim",
+            "ket": "Pulang-pergi dari rumah",
+            "awal": [
+                [
+                    "Biaya pendaftaran",
+                    250000,
+                    ""
+                ],
+                [
+                    "Daftar ulang dan administrasi",
+                    600000,
+                    ""
+                ],
+                [
+                    "Seragam",
+                    1100000,
+                    "4 stel, batik, olahraga, dan kerudung"
+                ],
+                [
+                    "Kitab dan buku pelajaran",
+                    500000,
+                    ""
+                ],
+                [
+                    "Infak pengembangan",
+                    1750000,
+                    "komponen yang dipotong sesuai gelombang"
+                ],
+                [
+                    "malak",
+                    999999990,
+                    ""
+                ]
+            ],
+            "bulanan": [
+                [
+                    "Syahriah (SPP)",
+                    275000,
+                    ""
+                ],
+                [
+                    "Madrasah diniyah sore",
+                    75000,
+                    ""
+                ],
+                [
+                    "Kegiatan dan ekstrakurikuler",
+                    50000,
+                    ""
+                ],
+                [
+                    "jasa guru",
+                    999999991,
+                    "wajib"
+                ]
+            ]
+        }
+    },
+    "SYARAT": [
+        [
+            "Fotokopi ijazah atau surat keterangan lulus SD\/MI",
+            "2 lembar, boleh menyusul"
+        ],
+        [
+            "Fotokopi akta kelahiran",
+            "2 lembar"
+        ],
+        [
+            "Pas foto berwarna 3×4 dan foto ananda santriwan\/santriwati",
+            "4 lembar pas foto berlatar biru dan 1 lembar foto ananda"
+        ],
+        [
+            "Bisa membaca Al-Qur’an",
+            "untuk semua calon santri"
+        ],
+        [
+            "Minimal usia 13 tahun",
+            "saat mendaftar"
+        ],
+        [
+            "Fotokopi KIP, KKS, atau kartu PKH",
+            "bila mengajukan keringanan biaya"
+        ],
+        [
+            "Fotokopi sertifikat prestasi",
+            "bila mengajukan beasiswa prestasi"
+        ],
+        [
+            "fotokopi rumah",
+            "wajib"
+        ]
+    ],
+    "PERSYARATAN_MTS": [
+        "Fotokopi KTP ayah dan ibu",
+        "Fotokopi KK",
+        "Fotokopi akta kelahiran",
+        "Foto santri 3x4 (2 lembar)",
+        "Print out NISN",
+        "Surat keterangan lulus\/ijazah",
+        "Bisa membaca Al-Quran dengan baik dan benar",
+        "Mengisi persetujuan siswa non-mukim",
+        "Menerima murid pindahan (mutasi)",
+        "harus pintar"
+    ],
+    "RINCIAN_BIAYA_MTS": [
+        [
+            "Formulir",
+            0,
+            "Gratis apabila sudah mem-follow akun media sosial"
+        ],
+        [
+            "Kegiatan orientasi",
+            100000,
+            ""
+        ],
+        [
+            "Uang gedung",
+            500000,
+            ""
+        ],
+        [
+            "SPP",
+            200000,
+            ""
+        ],
+        [
+            "Seragam",
+            750000,
+            "Putra: 3 setel kain seragam, bet, peci, dan sabuk. Putri: 3 setel kain seragam, bet, dan kerudung."
+        ],
+        [
+            "Kegiatan ODL, P5, dan lain-lain",
+            200000,
+            ""
+        ],
+        [
+            "Uang semester",
+            250000,
+            ""
+        ],
+        [
+            "uang guru",
+            1000000000000,
+            "wajib"
+        ]
+    ]
+}

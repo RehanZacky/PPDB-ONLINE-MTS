@@ -774,7 +774,7 @@ endif;
 
               <div class="field">
                 <label for="norek">Nomor Rekening</label>
-                <input id="norek" type="text" name="norek" value="1234567890" readonly tabindex="-1" />
+                <input id="norek" type="text" name="norek" value="<?= e($SITE['rekening_nomor']) ?>" readonly tabindex="-1" />
               </div>
 
               <div class="field">

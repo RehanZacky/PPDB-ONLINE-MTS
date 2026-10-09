@@ -82,9 +82,11 @@ include __DIR__ . '/includes/header.php';
         <h3 style="font-size:1.2rem">Transfer bank</h3>
         <!-- GANTI: nomor rekening resmi lembaga -->
         <p style="margin-top:.6rem">
-          Bank Syariah Indonesia<br>
-          <strong style="color:var(--judul);font-size:1.1rem">1234567890</strong><br>
-          a.n. <?= e($SITE['yayasan']) ?>
+          <?php foreach ($SITE['rekening_options'] as $account): ?>
+            <?= e((string) $account['bank']) ?><br>
+            <strong style="color:var(--judul);font-size:1.1rem"><?= e((string) $account['nomor']) ?></strong><br>
+            a.n. <?= e((string) $account['nama']) ?><br><br>
+          <?php endforeach; ?>
         </p>
         <p style="margin-top:.8rem;font-size:.9rem;color:var(--redup)">Kirim bukti transfer ke WhatsApp panitia, sertakan nama calon santri.</p>
       </div>

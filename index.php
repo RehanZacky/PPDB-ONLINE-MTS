@@ -77,19 +77,22 @@ include __DIR__ . '/includes/header.php';
           <div class="rincian-program">
             <h4>Rincian Biaya <?= e($pr['nama']) ?></h4>
             <div class="rincian-tabel">
-              <?php foreach ($pr['rincian'] as [$nama_biaya, $nominal]): ?>
+              <?php foreach ($BIAYA[$kunci]['awal'] as [$nama_biaya, $nominal, $catatan]): ?>
                 <div class="rincian-baris">
-                  <span><?= e($nama_biaya) ?></span>
-                  <b><?= e($nominal) ?></b>
+                  <span>
+                    <?= e($nama_biaya) ?>
+                    <?php if ($catatan !== ''): ?><small><?= e($catatan) ?></small><?php endif; ?>
+                  </span>
+                  <b><?= e(rp((int) $nominal)) ?></b>
                 </div>
               <?php endforeach; ?>
               <div class="rincian-baris rincian-total">
                 <span>Total</span>
-                <b><?= e($pr['total_rincian']) ?></b>
+                <b><?= e(rp(total_biaya($BIAYA[$kunci]['awal']))) ?></b>
               </div>
             </div>
           </div>
-          <div class="kotak-bulanan"><?= e($pr['kotak_bulanan']) ?></div>
+          <div class="kotak-bulanan">Biaya bulanan: <?= e(rp(total_biaya($BIAYA[$kunci]['bulanan']))) ?></div>
         </article>
       <?php endforeach; ?>
     </div>

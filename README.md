@@ -38,6 +38,26 @@ spmb/
 
 Syarat hosting: PHP 7.4 ke atas. Tidak perlu basis data, tidak perlu composer.
 
+## Mengubah data lewat admin
+
+Buka `spmb_admin.php` di localhost atau hosting, lalu pilih menu **Pengaturan**.
+Admin dapat mengubah:
+
+- Page 1: gelombang, tanggal, diskon, seluruh komponen harga, dan rekening pembayaran.
+- Page 2: nomor WhatsApp panitia, lokasi kantor, Google Maps, jam pelayanan, dan email.
+  Rekening dan WhatsApp dapat memiliki beberapa opsi dengan tombol **+ Tambah**.
+- Page 3: berkas yang perlu disiapkan, persyaratan pendaftaran, dan rincian biaya MTs.
+
+Saat tombol **Simpan semua pengaturan** ditekan, data disimpan ke
+`data/settings.json`. Folder `data` harus dapat ditulis oleh Apache. File tersebut
+dilindungi `.htaccess` agar tidak bisa diakses langsung dari browser.
+
+Setiap daftar di halaman Pengaturan memiliki tombol **+ Tambah**. Gunakan tombol
+tersebut untuk menambahkan gelombang, komponen biaya, syarat berkas, syarat
+pendaftaran, rekening, nomor WhatsApp, atau rincian biaya baru secara manual
+sebelum menyimpannya. Setiap baris/kartu juga memiliki tombol **Hapus**. Minimal
+satu item pada setiap daftar harus dipertahankan.
+
 ## Yang berjalan otomatis
 
 - **Status gelombang** (Dibuka / Segera / Ditutup) dihitung dari tanggal hari ini.

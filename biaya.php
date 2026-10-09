@@ -1,27 +1,8 @@
 <?php
 require __DIR__ . '/config.php';
 
-$persyaratan = [
-  'Fotokopi KTP ayah dan ibu',
-  'Fotokopi KK',
-  'Fotokopi akta kelahiran',
-  'Foto santri 3x4 (2 lembar)',
-  'Print out NISN',
-  'Surat keterangan lulus/ijazah',
-  'Bisa membaca Al-Quran dengan baik dan benar',
-  'Mengisi persetujuan siswa non-mukim',
-  'Menerima murid pindahan (mutasi)',
-];
-
-$rincianBiaya = [
-  ['Formulir', 0, 'Gratis apabila sudah mem-follow akun media sosial'],
-  ['Kegiatan orientasi', 100000, ''],
-  ['Uang gedung', 500000, ''],
-  ['SPP', 200000, ''],
-  ['Seragam', 750000, 'Putra: 3 setel kain seragam, bet, peci, dan sabuk. Putri: 3 setel kain seragam, bet, dan kerudung.'],
-  ['Kegiatan ODL, P5, dan lain-lain', 200000, ''],
-  ['Uang semester', 250000, ''],
-];
+$persyaratan = $PERSYARATAN_MTS;
+$rincianBiaya = $RINCIAN_BIAYA_MTS;
 $totalBiayaMts = array_sum(array_column($rincianBiaya, 1));
 
 $PAGE = [
