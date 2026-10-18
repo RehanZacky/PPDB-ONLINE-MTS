@@ -262,7 +262,9 @@ function create_registration_pdf(string $path, string $registrationNumber, array
     $pageNumbers[] = $nextObject++;
     $contentNumbers[] = $nextObject++;
   }
-  $kids = implode(' ', array_map(static fn ($number) => $number . ' 0 R', $pageNumbers));
+  $kids = implode(' ', array_map(static function ($number) {
+    return $number . ' 0 R';
+  }, $pageNumbers));
   $objects[1] = '<< /Type /Pages /Kids [' . $kids . '] /Count ' . count($pages) . ' >>';
   foreach ($pages as $pageIndex => $content) {
     $imageResources = [];
@@ -274,7 +276,9 @@ function create_registration_pdf(string $path, string $registrationNumber, array
         $imageResources[$resource] = $uploadedImageObjects[$resource];
       }
     }
-    $imageResource = $imageResources === [] ? '' : ' /XObject << ' . implode(' ', array_map(static fn ($name, $number) => '/' . $name . ' ' . $number . ' 0 R', array_keys($imageResources), $imageResources)) . ' >>';
+    $imageResource = $imageResources === [] ? '' : ' /XObject << ' . implode(' ', array_map(static function ($name, $number) {
+      return '/' . $name . ' ' . $number . ' 0 R';
+    }, array_keys($imageResources), $imageResources)) . ' >>';
     $objects[] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' . $imageResource . ' >> /Contents ' . $contentNumbers[$pageIndex] . ' 0 R >>';
     $objects[] = '<< /Length ' . strlen($content) . " >>\nstream\n" . $content . "\nendstream";
   }

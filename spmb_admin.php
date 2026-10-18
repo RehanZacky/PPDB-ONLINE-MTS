@@ -52,7 +52,9 @@ function spmb_registrations(string $root): array
         ];
     }
 
-    usort($registrations, static fn(array $a, array $b): int => $b['time'] <=> $a['time']);
+    usort($registrations, static function (array $a, array $b): int {
+        return $b['time'] <=> $a['time'];
+    });
     return $registrations;
 }
 
@@ -105,9 +107,13 @@ $registrations = spmb_registrations($storageRoot);
 $query = trim((string) ($_GET['q'] ?? ''));
 $selectedWave = (string) ($_GET['wave'] ?? '');
 if ($query !== '') {
-    $registrations = array_values(array_filter($registrations, static fn(array $item): bool => stripos($item['id'], $query) !== false));
+    $registrations = array_values(array_filter($registrations, static function (array $item): bool {
+        return stripos($item['id'], $query) !== false;
+    }));
 }
-$totalDocuments = array_sum(array_map(static fn(array $item): int => count($item['files']), $registrations));
+$totalDocuments = array_sum(array_map(static function (array $item): int {
+    return count($item['files']);
+}, $registrations));
 $activeWave = gelombang_kini($GELOMBANG);
 $username = 'Admin';
 ?>
