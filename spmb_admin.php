@@ -252,6 +252,8 @@ $RINCIAN_BIAYA_MTS = [];
 $message = '';
 $messageError = false;
 $adminTab = ($_GET['tab'] ?? 'data') === 'settings' ? 'settings' : 'data';
+$settingsPage = (string) ($_POST['settings_page'] ?? $_GET['page'] ?? '1');
+if (!in_array($settingsPage, ['1', '2', '3'], true)) $settingsPage = '1';
 $csrfToken = spmb_csrf_token();
 $settingsReadError = false;
 
@@ -529,14 +531,15 @@ $username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Adm
       <div class="panel-head"><h2>Pengaturan SPMB</h2><span class="meta">Disimpan di folder privat admin/data</span></div>
       <p class="help">Website ini belum memiliki halaman publik atau formulir SPMB; pengaturan di sini tersimpan untuk data admin.</p>
       <nav class="settings-tabs" aria-label="Bagian pengaturan">
-        <button class="settings-tab active" type="button" data-page-tab="page-1" aria-controls="page-1" aria-selected="true">Page 1 · Gelombang, harga &amp; rekening</button>
-        <button class="settings-tab" type="button" data-page-tab="page-2" aria-controls="page-2" aria-selected="false">Page 2 · Kontak &amp; pelayanan</button>
-        <button class="settings-tab" type="button" data-page-tab="page-3" aria-controls="page-3" aria-selected="false">Page 3 · Persiapan, syarat &amp; biaya MTs</button>
+        <?php foreach (['1' => 'Gelombang, harga &amp; rekening', '2' => 'Kontak &amp; pelayanan', '3' => 'Persiapan, syarat &amp; biaya MTs'] as $page => $label): ?>
+          <a class="settings-tab<?= $settingsPage === (string) $page ? ' active' : '' ?>" href="?tab=settings&amp;page=<?= $page ?>" data-page-tab="page-<?= $page ?>" aria-controls="page-<?= $page ?>" aria-current="<?= $settingsPage === (string) $page ? 'page' : 'false' ?>">Page <?= $page ?> · <?= $label ?></a>
+        <?php endforeach; ?>
       </nav>
       <form method="post">
         <input type="hidden" name="save_settings" value="1">
         <input type="hidden" name="csrf_token" value="<?= spmb_admin_e($csrfToken) ?>">
-        <div class="setting-page" id="page-1">
+        <input type="hidden" name="settings_page" value="<?= spmb_admin_e($settingsPage) ?>">
+        <div class="setting-page" id="page-1"<?= $settingsPage !== '1' ? ' hidden' : '' ?>>
         <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0">
           <h3>Page 1 · Gelombang, harga, dan rekening</h3>
           <div style="overflow:auto"><table class="setting-table"><thead><tr><th>Nama gelombang</th><th>Mulai</th><th>Berakhir</th><th>Diskon</th><th>Catatan</th></tr></thead><tbody id="waves-list">
@@ -550,10 +553,10 @@ $username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Adm
           <p class="subheading">Pilihan rekening</p><div class="settings-grid" id="rekening-list"><?php foreach ($SITE['rekening_options'] as $i => $account): ?><div class="option-card"><div class="field"><label>Nama bank</label><input required name="rekening_options[<?= $i ?>][bank]" value="<?= spmb_admin_e((string) ($account['bank'] ?? '')) ?>"></div><div class="field"><label>Nomor rekening</label><input required name="rekening_options[<?= $i ?>][nomor]" value="<?= spmb_admin_e((string) ($account['nomor'] ?? '')) ?>"></div><div class="field"><label>Nama pemilik rekening</label><input required name="rekening_options[<?= $i ?>][nama]" value="<?= spmb_admin_e((string) ($account['nama'] ?? '')) ?>"></div></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="rekening-list" data-template="rekening-template">+ Tambah rekening</button>
         </div>
         </div>
-        <div class="setting-page" id="page-2" hidden>
+        <div class="setting-page" id="page-2"<?= $settingsPage !== '2' ? ' hidden' : '' ?>>
         <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0"><h3>Page 2 · Kontak dan pelayanan</h3><p class="subheading">Pilihan WhatsApp panitia</p><p class="help">Opsi pertama digunakan untuk tombol WhatsApp utama. Semua opsi tetap tampil sebagai kontak yang bisa dihubungi.</p><div class="settings-grid" id="whatsapp-list"><?php foreach ($SITE['whatsapp_options'] as $i => $whatsapp): ?><div class="option-card"><div class="field"><label>Nomor WhatsApp</label><input required name="whatsapp_options[<?= $i ?>][nomor]" value="<?= spmb_admin_e((string) ($whatsapp['nomor'] ?? '')) ?>" data-whatsapp-number><span class="help">Format internasional, contoh 62812...</span><a class="button whatsapp-link" href="<?= spmb_admin_e(spmb_admin_wa_link((string) ($whatsapp['nomor'] ?? ''))) ?>" target="_blank" rel="noopener" data-whatsapp-link>Hubungi nomor ini</a></div><div class="field"><label>Nomor yang ditampilkan</label><input required name="whatsapp_options[<?= $i ?>][tampil]" value="<?= spmb_admin_e((string) ($whatsapp['tampil'] ?? '')) ?>"></div><div class="field"><label>Nama petugas</label><input name="whatsapp_options[<?= $i ?>][nama]" value="<?= spmb_admin_e((string) ($whatsapp['nama'] ?? '')) ?>"></div></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="whatsapp-list" data-template="whatsapp-template">+ Tambah WhatsApp</button><div class="settings-grid"><div class="field"><label>Lokasi kantor</label><textarea required name="site[alamat]"><?= spmb_admin_e($SITE['alamat']) ?></textarea></div><div class="field"><label>Link Google Maps</label><input name="site[maps]" value="<?= spmb_admin_e($SITE['maps']) ?>"></div><div class="field"><label>Hari dan jam pelayanan</label><input required name="site[jam_layanan]" value="<?= spmb_admin_e($SITE['jam_layanan']) ?>"></div><div class="field"><label>Email panitia</label><input required type="email" name="site[email]" value="<?= spmb_admin_e($SITE['email']) ?>"></div></div></div>
         </div>
-        <div class="setting-page" id="page-3" hidden>
+        <div class="setting-page" id="page-3"<?= $settingsPage !== '3' ? ' hidden' : '' ?>>
         <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0"><h3>Page 3 · Persiapan, syarat, dan rincian biaya MTs</h3><p class="subheading">Yang perlu disiapkan</p><div style="overflow:auto"><table class="setting-table"><thead><tr><th>Item</th><th>Keterangan</th></tr></thead><tbody id="syarat-list"><?php foreach ($SYARAT as $i => $row): ?><tr><td><input required name="syarat[<?= $i ?>][nama]" value="<?= spmb_admin_e($row[0]) ?>"></td><td><input name="syarat[<?= $i ?>][ket]" value="<?= spmb_admin_e($row[1]) ?>"></td></tr><?php endforeach; ?></tbody></table></div><button class="button add-row" type="button" data-add-row="syarat-list" data-template="syarat-template">+ Tambah syarat berkas</button><p class="subheading">Syarat untuk mendaftar</p><div class="settings-grid" id="mts-requirements-list"><?php foreach ($PERSYARATAN_MTS as $i => $requirement): ?><div class="field"><label>Syarat <?= $i + 1 ?></label><input required name="mts_requirements[<?= $i ?>]" value="<?= spmb_admin_e($requirement) ?>"></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="mts-requirements-list" data-template="mts-requirement-template">+ Tambah syarat pendaftaran</button><p class="subheading">Rincian biaya MTs</p><div style="overflow:auto"><table class="setting-table"><thead><tr><th>Komponen</th><th>Nominal</th><th>Catatan</th></tr></thead><tbody id="mts-costs-list"><?php foreach ($RINCIAN_BIAYA_MTS as $i => $cost): ?><tr><td><input required name="mts_costs[<?= $i ?>][0]" value="<?= spmb_admin_e($cost[0]) ?>"></td><td><input required type="number" min="0" name="mts_costs[<?= $i ?>][1]" value="<?= (int) $cost[1] ?>"></td><td><input name="mts_costs[<?= $i ?>][2]" value="<?= spmb_admin_e($cost[2]) ?>"></td></tr><?php endforeach; ?></tbody></table></div><button class="button add-row" type="button" data-add-row="mts-costs-list" data-template="mts-cost-template">+ Tambah rincian biaya</button></div>
         </div>
         </div>
@@ -570,12 +573,18 @@ $username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Adm
       var settingsForm = document.querySelector('form');
       var nextRowIndex = Date.now();
       pageTabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
+        tab.addEventListener('click', function (event) {
+          event.preventDefault();
+          if (tab.tagName === 'A') {
+            window.history.replaceState(null, '', tab.href);
+          }
+          var pageNumber = tab.getAttribute('data-page-tab').replace('page-', '');
+          settingsForm.querySelector('[name="settings_page"]').value = pageNumber;
           var pageId = tab.getAttribute('data-page-tab');
           pageTabs.forEach(function (item) {
             var active = item === tab;
             item.classList.toggle('active', active);
-            item.setAttribute('aria-selected', active ? 'true' : 'false');
+            item.setAttribute('aria-current', active ? 'page' : 'false');
           });
           pagePanels.forEach(function (panel) {
             panel.hidden = panel.id !== pageId;
