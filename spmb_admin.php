@@ -1,18 +1,97 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/config.php';
+require __DIR__ . '/auth.php';
 
-$storageRoot = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'pendaftaran';
+$storageRoot = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'pendaftaran';
+$settingsRoot = __DIR__ . DIRECTORY_SEPARATOR . 'data';
+$settingsFile = $settingsRoot . DIRECTORY_SEPARATOR . 'settings.json';
 
 function spmb_admin_e(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function spmb_setting_text(array $source, string $key, string $default = ''): string
+{
+    $value = $source[$key] ?? $default;
+    return is_scalar($value) ? trim((string) $value) : $default;
+}
+
+function spmb_setting_rows(array $rows): array
+{
+    $result = [];
+    foreach ($rows as $row) {
+        if (!is_array($row)) continue;
+        $label = is_scalar($row[0] ?? null) ? trim((string) $row[0]) : '';
+        if ($label === '') continue;
+        $result[] = [
+            $label,
+            max(0, (int) (is_scalar($row[1] ?? null) ? $row[1] : 0)),
+            is_scalar($row[2] ?? null) ? trim((string) $row[2]) : '',
+        ];
+    }
+    return $result;
+}
+
+function wa_nomor(string $number): string
+{
+    $number = preg_replace('/\D+/', '', $number) ?? '';
+    return str_starts_with($number, '0') ? '62' . substr($number, 1) : $number;
+}
+
+function spmb_admin_wa_link(string $number): string
+{
+    return 'https://wa.me/' . rawurlencode(wa_nomor($number));
+}
+
+function spmb_valid_date(string $date): bool
+{
+    if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $matches)) return false;
+    return checkdate((int) $matches[2], (int) $matches[3], (int) $matches[1]);
+}
+
+function gelombang_kini(array $waves): ?array
+{
+    $today = date('Y-m-d');
+    foreach ($waves as $wave) {
+        if (!is_array($wave)) continue;
+        $start = (string) ($wave['mulai'] ?? '');
+        $end = (string) ($wave['selesai'] ?? '');
+        if (spmb_valid_date($start) && spmb_valid_date($end) && $start <= $today && $today <= $end) {
+            return $wave;
+        }
+    }
+    return null;
+}
+
+function rentang(string $start, string $end): string
+{
+    return date('d M Y', strtotime($start)) . ' – ' . date('d M Y', strtotime($end));
+}
+
+function rp(int $amount): string
+{
+    return 'Rp' . number_format($amount, 0, ',', '.');
+}
+
 function spmb_registration_id(string $value): bool
 {
     return preg_match('/^MTS-[0-9]{8}-[A-F0-9]{6}$/', $value) === 1;
+}
+
+function spmb_csrf_token(): string
+{
+    if (!isset($_SESSION['spmb_admin_csrf'])) {
+        $_SESSION['spmb_admin_csrf'] = bin2hex(random_bytes(32));
+    }
+    return (string) $_SESSION['spmb_admin_csrf'];
+}
+
+function spmb_csrf_valid(): bool
+{
+    $token = $_POST['csrf_token'] ?? '';
+    return is_string($token) && isset($_SESSION['spmb_admin_csrf']) && hash_equals((string) $_SESSION['spmb_admin_csrf'], $token);
 }
 
 function spmb_file_size(int $bytes): string
@@ -24,19 +103,19 @@ function spmb_file_size(int $bytes): string
 
 function spmb_registrations(string $root): array
 {
-    if (!is_dir($root)) return [];
+    if (!is_dir($root) || is_link($root)) return [];
 
     $registrations = [];
     foreach (scandir($root) ?: [] as $folder) {
         if ($folder === '.' || $folder === '..' || !spmb_registration_id($folder)) continue;
         $folderPath = $root . DIRECTORY_SEPARATOR . $folder;
-        if (!is_dir($folderPath)) continue;
+        if (!is_dir($folderPath) || is_link($folderPath)) continue;
 
         $files = [];
         foreach (scandir($folderPath) ?: [] as $file) {
             if ($file === '.' || $file === '..') continue;
             $filePath = $folderPath . DIRECTORY_SEPARATOR . $file;
-            if (is_file($filePath)) {
+            if (is_file($filePath) && !is_link($filePath)) {
                 $files[] = [
                     'name' => $file,
                     'size' => (int) filesize($filePath),
@@ -60,11 +139,14 @@ function spmb_registrations(string $root): array
 
 function spmb_remove_directory(string $directory): bool
 {
+    if (is_link($directory)) return unlink($directory);
     if (!is_dir($directory)) return false;
     foreach (scandir($directory) ?: [] as $item) {
         if ($item === '.' || $item === '..') continue;
         $path = $directory . DIRECTORY_SEPARATOR . $item;
-        if (is_dir($path)) {
+        if (is_link($path)) {
+            if (!unlink($path)) return false;
+        } elseif (is_dir($path)) {
             if (!spmb_remove_directory($path)) return false;
         } elseif (!unlink($path)) {
             return false;
@@ -73,13 +155,106 @@ function spmb_remove_directory(string $directory): bool
     return rmdir($directory);
 }
 
-$settingsRoot = __DIR__ . DIRECTORY_SEPARATOR . 'data';
-$settingsFile = $settingsRoot . DIRECTORY_SEPARATOR . 'settings.json';
+$SITE = [
+    'singkat' => 'MTs',
+    'tahun_ajaran' => date('Y') . '/' . (string) (date('Y') + 1),
+    'email' => '',
+    'alamat' => '',
+    'maps' => '',
+    'jam_layanan' => '',
+    'whatsapp_options' => [['nomor' => '6281231112301', 'tampil' => '081231112301', 'nama' => 'Abah Syahrir']],
+    'rekening_options' => [['bank' => '', 'nomor' => '', 'nama' => '']],
+];
+$GELOMBANG = [];
+$BIAYA = [
+    'mukim' => ['label' => 'Santri mukim', 'ket' => '', 'awal' => [], 'bulanan' => []],
+    'nonmukim' => ['label' => 'Santri non-mukim', 'ket' => '', 'awal' => [], 'bulanan' => []],
+];
+$SYARAT = [];
+$PERSYARATAN_MTS = [];
+$RINCIAN_BIAYA_MTS = [];
 $message = '';
 $messageError = false;
-$adminTab = (string) ($_GET['tab'] ?? 'data');
+$adminTab = ($_GET['tab'] ?? 'data') === 'settings' ? 'settings' : 'data';
+$csrfToken = spmb_csrf_token();
+$settingsReadError = false;
+
+if (is_file($settingsFile)) {
+    $settingsContents = file_get_contents($settingsFile);
+    $savedSettings = $settingsContents === false ? null : json_decode($settingsContents, true);
+    if (!is_array($savedSettings)) {
+        $message = 'Pengaturan SPMB tidak dapat dibaca. Periksa file data/settings.json.';
+        $messageError = true;
+        $settingsReadError = true;
+    } else {
+        if (is_array($savedSettings['SITE'] ?? null)) $SITE = array_replace($SITE, $savedSettings['SITE']);
+        if (is_array($savedSettings['GELOMBANG'] ?? null)) $GELOMBANG = $savedSettings['GELOMBANG'];
+        if (is_array($savedSettings['BIAYA'] ?? null)) {
+            foreach (['mukim', 'nonmukim'] as $kind) {
+                if (is_array($savedSettings['BIAYA'][$kind] ?? null)) {
+                    $BIAYA[$kind] = array_replace($BIAYA[$kind], $savedSettings['BIAYA'][$kind]);
+                }
+            }
+        }
+        if (is_array($savedSettings['SYARAT'] ?? null)) $SYARAT = $savedSettings['SYARAT'];
+        if (is_array($savedSettings['PERSYARATAN_MTS'] ?? null)) $PERSYARATAN_MTS = $savedSettings['PERSYARATAN_MTS'];
+        if (is_array($savedSettings['RINCIAN_BIAYA_MTS'] ?? null)) $RINCIAN_BIAYA_MTS = $savedSettings['RINCIAN_BIAYA_MTS'];
+    }
+}
+
+foreach (['singkat', 'tahun_ajaran', 'email', 'alamat', 'maps', 'jam_layanan'] as $siteField) {
+    if (!is_scalar($SITE[$siteField] ?? null)) $SITE[$siteField] = '';
+    else $SITE[$siteField] = (string) $SITE[$siteField];
+}
+foreach (['whatsapp_options', 'rekening_options'] as $optionField) {
+    if (!is_array($SITE[$optionField] ?? null)) $SITE[$optionField] = [];
+    $SITE[$optionField] = array_values(array_filter($SITE[$optionField], 'is_array'));
+    foreach ($SITE[$optionField] as $index => $option) {
+        foreach ($option as $key => $value) {
+            if (!is_scalar($value)) $SITE[$optionField][$index][$key] = '';
+            else $SITE[$optionField][$index][$key] = (string) $value;
+        }
+    }
+}
+foreach (['mukim', 'nonmukim'] as $kind) {
+    foreach (['label', 'ket'] as $field) {
+        if (!is_scalar($BIAYA[$kind][$field] ?? null)) $BIAYA[$kind][$field] = '';
+        else $BIAYA[$kind][$field] = (string) $BIAYA[$kind][$field];
+    }
+    foreach (['awal', 'bulanan'] as $section) {
+        if (!is_array($BIAYA[$kind][$section] ?? null)) $BIAYA[$kind][$section] = [];
+        $BIAYA[$kind][$section] = spmb_setting_rows($BIAYA[$kind][$section]);
+    }
+}
+if (!is_array($GELOMBANG)) $GELOMBANG = [];
+$GELOMBANG = array_values(array_filter($GELOMBANG, 'is_array'));
+foreach ($GELOMBANG as $index => $wave) {
+    foreach (['nama', 'mulai', 'selesai', 'catatan'] as $field) {
+        $GELOMBANG[$index][$field] = is_scalar($wave[$field] ?? null) ? (string) $wave[$field] : '';
+    }
+    $GELOMBANG[$index]['potongan'] = max(0, (int) (is_scalar($wave['potongan'] ?? null) ? $wave['potongan'] : 0));
+}
+if (!is_array($SYARAT)) $SYARAT = [];
+$SYARAT = array_values(array_filter($SYARAT, static function ($row): bool {
+    return is_array($row) && is_scalar($row[0] ?? null);
+}));
+foreach ($SYARAT as $index => $row) {
+    $SYARAT[$index] = [(string) $row[0], is_scalar($row[1] ?? null) ? (string) $row[1] : ''];
+}
+if (!is_array($PERSYARATAN_MTS)) $PERSYARATAN_MTS = [];
+$PERSYARATAN_MTS = array_values(array_filter($PERSYARATAN_MTS, 'is_scalar'));
+$PERSYARATAN_MTS = array_map('strval', $PERSYARATAN_MTS);
+if (!is_array($RINCIAN_BIAYA_MTS)) $RINCIAN_BIAYA_MTS = [];
+$RINCIAN_BIAYA_MTS = spmb_setting_rows($RINCIAN_BIAYA_MTS);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
+    if (!spmb_csrf_valid()) {
+        $message = 'Sesi formulir kedaluwarsa. Muat ulang halaman sebelum menyimpan.';
+        $messageError = true;
+    } elseif ($settingsReadError) {
+        $message = 'Pengaturan tidak disimpan karena file sebelumnya tidak dapat dibaca.';
+        $messageError = true;
+    } else {
     $postedSite = is_array($_POST['site'] ?? null) ? $_POST['site'] : [];
     $newSite = [];
     foreach (['email', 'alamat', 'maps', 'jam_layanan'] as $field) {
@@ -126,12 +301,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         $name = spmb_setting_text($wave, 'nama');
         $start = spmb_setting_text($wave, 'mulai');
         $end = spmb_setting_text($wave, 'selesai');
-        if ($name === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $start) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $end)) continue;
+        if ($name === '' || !spmb_valid_date($start) || !spmb_valid_date($end) || $start > $end) continue;
+        $discount = is_scalar($wave['potongan'] ?? null) ? (string) $wave['potongan'] : '0';
         $newWaves[] = [
             'nama' => $name,
             'mulai' => $start,
             'selesai' => $end,
-            'potongan' => max(0, (int) preg_replace('/[^\d]/', '', (string) ($wave['potongan'] ?? '0'))),
+            'potongan' => max(0, (int) preg_replace('/[^\d]/', '', $discount)),
             'catatan' => spmb_setting_text($wave, 'catatan'),
         ];
     }
@@ -144,8 +320,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         $newCosts[$kind] = [
             'label' => spmb_setting_text($posted, 'label', $current['label']),
             'ket' => spmb_setting_text($posted, 'ket', $current['ket']),
-            'awal' => spmb_setting_rows(is_array($posted['awal'] ?? null) ? $posted['awal'] : [], 3),
-            'bulanan' => spmb_setting_rows(is_array($posted['bulanan'] ?? null) ? $posted['bulanan'] : [], 3),
+            'awal' => spmb_setting_rows(is_array($posted['awal'] ?? null) ? $posted['awal'] : []),
+            'bulanan' => spmb_setting_rows(is_array($posted['bulanan'] ?? null) ? $posted['bulanan'] : []),
         ];
     }
 
@@ -157,13 +333,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
     }
     $newMtsRequirements = [];
     foreach (is_array($_POST['mts_requirements'] ?? null) ? $_POST['mts_requirements'] : [] as $value) {
-        $value = trim((string) $value);
+        $value = is_scalar($value) ? trim((string) $value) : '';
         if ($value !== '') $newMtsRequirements[] = $value;
     }
-    $newMtsCosts = spmb_setting_rows(is_array($_POST['mts_costs'] ?? null) ? $_POST['mts_costs'] : [], 3);
+    $newMtsCosts = spmb_setting_rows(is_array($_POST['mts_costs'] ?? null) ? $_POST['mts_costs'] : []);
 
-    if (!$newWaves || !$newSyarat || !$newMtsRequirements || !$newMtsCosts || !$newWhatsapps || !$newAccounts) {
-        $message = 'Data tidak lengkap. Isi minimal satu baris pada setiap daftar.';
+    $mapsScheme = strtolower((string) parse_url($newSite['maps'], PHP_URL_SCHEME));
+    $validMaps = $newSite['maps'] === ''
+        || (filter_var($newSite['maps'], FILTER_VALIDATE_URL) !== false && in_array($mapsScheme, ['http', 'https'], true));
+    $validWhatsapps = !array_filter($newWhatsapps, static function (array $whatsapp): bool {
+        $digits = wa_nomor($whatsapp['nomor']);
+        return strlen($digits) < 8 || strlen($digits) > 15;
+    });
+
+    if (!$newWaves || !$newSyarat || !$newMtsRequirements || !$newMtsCosts || !$newWhatsapps || !$newAccounts
+        || $newSite['alamat'] === '' || $newSite['jam_layanan'] === ''
+        || filter_var($newSite['email'], FILTER_VALIDATE_EMAIL) === false
+        || !$validMaps || !$validWhatsapps) {
+        $message = 'Data belum lengkap atau email/tautan peta tidak valid. Periksa semua bagian pengaturan.';
         $messageError = true;
     } elseif (!is_dir($settingsRoot) && !mkdir($settingsRoot, 0755, true)) {
         $message = 'Folder penyimpanan data tidak dapat dibuat.';
@@ -177,7 +364,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
             'PERSYARATAN_MTS' => $newMtsRequirements,
             'RINCIAN_BIAYA_MTS' => $newMtsCosts,
         ];
-        $saved = file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        $encodedSettings = json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $saved = $encodedSettings === false ? false : file_put_contents($settingsFile, $encodedSettings, LOCK_EX);
         if ($saved === false) {
             $message = 'Data tidak dapat disimpan. Pastikan folder data bisa ditulis oleh Apache.';
             $messageError = true;
@@ -191,11 +379,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
             $RINCIAN_BIAYA_MTS = $settings['RINCIAN_BIAYA_MTS'];
         }
     }
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
-    $id = strtoupper(trim((string) ($_POST['registration'] ?? '')));
-    if (!spmb_registration_id($id)) {
+    $id = is_string($_POST['registration'] ?? null) ? strtoupper(trim($_POST['registration'])) : '';
+    if (!spmb_csrf_valid()) {
+        $message = 'Sesi formulir kedaluwarsa. Muat ulang halaman sebelum menghapus data.';
+        $messageError = true;
+    } elseif (!spmb_registration_id($id)) {
         $message = 'Nomor pendaftaran tidak valid.';
         $messageError = true;
     } elseif (!spmb_remove_directory($storageRoot . DIRECTORY_SEPARATOR . $id)) {
@@ -209,25 +401,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
 if (isset($_GET['download'])) {
     $id = strtoupper((string) ($_GET['registration'] ?? ''));
     $file = basename((string) $_GET['download']);
-    $basePath = realpath($storageRoot . DIRECTORY_SEPARATOR . $id);
-    $filePath = realpath($storageRoot . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . $file);
-    if (!spmb_registration_id($id) || $basePath === false || $filePath === false || strpos($filePath, $basePath . DIRECTORY_SEPARATOR) !== 0 || !is_file($filePath)) {
+    $registrationPath = $storageRoot . DIRECTORY_SEPARATOR . $id;
+    $requestedPath = $registrationPath . DIRECTORY_SEPARATOR . $file;
+    $basePath = realpath($registrationPath);
+    $filePath = realpath($requestedPath);
+    if (!spmb_registration_id($id) || is_link($registrationPath) || is_link($requestedPath) || $basePath === false || $filePath === false || strpos($filePath, $basePath . DIRECTORY_SEPARATOR) !== 0 || !is_file($filePath)) {
         http_response_code(404);
         exit('Dokumen tidak ditemukan.');
     }
     $mime = function_exists('mime_content_type') ? (mime_content_type($filePath) ?: 'application/octet-stream') : 'application/octet-stream';
     header('Content-Type: ' . $mime);
+    header('X-Content-Type-Options: nosniff');
     header('Content-Length: ' . (string) filesize($filePath));
-    header('Content-Disposition: inline; filename="' . str_replace('"', '', $file) . '"');
+    header("Content-Disposition: attachment; filename=\"document\"; filename*=UTF-8''" . rawurlencode($file));
     readfile($filePath);
     exit;
 }
 
 $registrations = spmb_registrations($storageRoot);
 $query = trim((string) ($_GET['q'] ?? ''));
-$selectedWave = (string) ($_GET['wave'] ?? '');
 if ($query !== '') {
-    $registrations = array_values(array_filter($registrations, static function (array $item): bool {
+    $registrations = array_values(array_filter($registrations, static function (array $item) use ($query): bool {
         return stripos($item['id'], $query) !== false;
     }));
 }
@@ -235,7 +429,7 @@ $totalDocuments = array_sum(array_map(static function (array $item): int {
     return count($item['files']);
 }, $registrations));
 $activeWave = gelombang_kini($GELOMBANG);
-$username = 'Admin';
+$username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Admin');
 ?>
 <?php if ($adminTab === 'settings'): ?>
 <!doctype html>
@@ -254,19 +448,17 @@ $username = 'Admin';
     <nav class="nav" aria-label="Navigasi admin">
       <a href="spmb_admin.php">Data SPMB</a>
       <a class="active" href="spmb_admin.php?tab=settings">Pengaturan</a>
-      <a href="index.php" target="_blank" rel="noopener">Beranda</a>
-      <a href="gelombang.php" target="_blank" rel="noopener">Gelombang</a>
-      <a href="alur.php" target="_blank" rel="noopener">Alur &amp; Syarat</a>
-      <a href="biaya.php" target="_blank" rel="noopener">Biaya</a>
-      <a href="pembayaran.php" target="_blank" rel="noopener">Pembayaran</a>
+      <a href="../index.php" target="_blank" rel="noopener">Beranda</a>
+      <a href="dashboard_admin.php">Dashboard Admin</a>
     </nav>
-    <span class="user">Admin</span>
+    <span class="user"><?= spmb_admin_e($username) ?></span>
   </div></header>
   <main class="main">
     <div class="heading"><div><h1>Pengaturan halaman website</h1><p>Menu website sudah dipisah berdasarkan halaman agar informasi lebih ringkas.</p></div><a class="button light" href="spmb_admin.php">Kembali ke data SPMB</a></div>
     <?php if ($message !== ''): ?><div class="notice<?= $messageError ? ' error' : '' ?>"><?= spmb_admin_e($message) ?></div><?php endif; ?>
     <section class="panel">
-      <div class="panel-head"><h2>Pengaturan halaman website</h2><span class="meta">Perubahan langsung tampil di halaman publik</span></div>
+      <div class="panel-head"><h2>Pengaturan SPMB</h2><span class="meta">Disimpan di folder privat admin/data</span></div>
+      <p class="help">Website ini belum memiliki halaman publik atau formulir SPMB; pengaturan di sini tersimpan untuk data admin.</p>
       <nav class="settings-tabs" aria-label="Bagian pengaturan">
         <button class="settings-tab active" type="button" data-page-tab="page-1" aria-controls="page-1" aria-selected="true">Page 1 · Gelombang, harga &amp; rekening</button>
         <button class="settings-tab" type="button" data-page-tab="page-2" aria-controls="page-2" aria-selected="false">Page 2 · Kontak &amp; pelayanan</button>
@@ -274,6 +466,7 @@ $username = 'Admin';
       </nav>
       <form method="post">
         <input type="hidden" name="save_settings" value="1">
+        <input type="hidden" name="csrf_token" value="<?= spmb_admin_e($csrfToken) ?>">
         <div class="setting-page" id="page-1">
         <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0">
           <h3>Page 1 · Gelombang, harga, dan rekening</h3>
@@ -289,7 +482,7 @@ $username = 'Admin';
         </div>
         </div>
         <div class="setting-page" id="page-2" hidden>
-        <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0"><h3>Page 2 · Kontak dan pelayanan</h3><p class="subheading">Pilihan WhatsApp panitia</p><p class="help">Opsi pertama digunakan untuk tombol WhatsApp utama. Semua opsi tetap tampil sebagai kontak yang bisa dihubungi.</p><div class="settings-grid" id="whatsapp-list"><?php foreach ($SITE['whatsapp_options'] as $i => $whatsapp): ?><div class="option-card"><div class="field"><label>Nomor WhatsApp</label><input required name="whatsapp_options[<?= $i ?>][nomor]" value="<?= spmb_admin_e((string) ($whatsapp['nomor'] ?? '')) ?>" data-whatsapp-number><span class="help">Format internasional, contoh 62812...</span><a class="button whatsapp-link" href="<?= e(wa_link((string) ($whatsapp['nomor'] ?? ''))) ?>" target="_blank" rel="noopener" data-whatsapp-link>Hubungi nomor ini</a></div><div class="field"><label>Nomor yang ditampilkan</label><input required name="whatsapp_options[<?= $i ?>][tampil]" value="<?= spmb_admin_e((string) ($whatsapp['tampil'] ?? '')) ?>"></div><div class="field"><label>Nama petugas</label><input name="whatsapp_options[<?= $i ?>][nama]" value="<?= spmb_admin_e((string) ($whatsapp['nama'] ?? '')) ?>"></div></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="whatsapp-list" data-template="whatsapp-template">+ Tambah WhatsApp</button><div class="settings-grid"><div class="field"><label>Lokasi kantor</label><textarea required name="site[alamat]"><?= spmb_admin_e($SITE['alamat']) ?></textarea></div><div class="field"><label>Link Google Maps</label><input name="site[maps]" value="<?= spmb_admin_e($SITE['maps']) ?>"></div><div class="field"><label>Hari dan jam pelayanan</label><input required name="site[jam_layanan]" value="<?= spmb_admin_e($SITE['jam_layanan']) ?>"></div><div class="field"><label>Email panitia</label><input required type="email" name="site[email]" value="<?= spmb_admin_e($SITE['email']) ?>"></div></div></div>
+        <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0"><h3>Page 2 · Kontak dan pelayanan</h3><p class="subheading">Pilihan WhatsApp panitia</p><p class="help">Opsi pertama digunakan untuk tombol WhatsApp utama. Semua opsi tetap tampil sebagai kontak yang bisa dihubungi.</p><div class="settings-grid" id="whatsapp-list"><?php foreach ($SITE['whatsapp_options'] as $i => $whatsapp): ?><div class="option-card"><div class="field"><label>Nomor WhatsApp</label><input required name="whatsapp_options[<?= $i ?>][nomor]" value="<?= spmb_admin_e((string) ($whatsapp['nomor'] ?? '')) ?>" data-whatsapp-number><span class="help">Format internasional, contoh 62812...</span><a class="button whatsapp-link" href="<?= spmb_admin_e(spmb_admin_wa_link((string) ($whatsapp['nomor'] ?? ''))) ?>" target="_blank" rel="noopener" data-whatsapp-link>Hubungi nomor ini</a></div><div class="field"><label>Nomor yang ditampilkan</label><input required name="whatsapp_options[<?= $i ?>][tampil]" value="<?= spmb_admin_e((string) ($whatsapp['tampil'] ?? '')) ?>"></div><div class="field"><label>Nama petugas</label><input name="whatsapp_options[<?= $i ?>][nama]" value="<?= spmb_admin_e((string) ($whatsapp['nama'] ?? '')) ?>"></div></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="whatsapp-list" data-template="whatsapp-template">+ Tambah WhatsApp</button><div class="settings-grid"><div class="field"><label>Lokasi kantor</label><textarea required name="site[alamat]"><?= spmb_admin_e($SITE['alamat']) ?></textarea></div><div class="field"><label>Link Google Maps</label><input name="site[maps]" value="<?= spmb_admin_e($SITE['maps']) ?>"></div><div class="field"><label>Hari dan jam pelayanan</label><input required name="site[jam_layanan]" value="<?= spmb_admin_e($SITE['jam_layanan']) ?>"></div><div class="field"><label>Email panitia</label><input required type="email" name="site[email]" value="<?= spmb_admin_e($SITE['email']) ?>"></div></div></div>
         </div>
         <div class="setting-page" id="page-3" hidden>
         <div class="setting-block" style="margin-top:0;padding-top:0;border-top:0"><h3>Page 3 · Persiapan, syarat, dan rincian biaya MTs</h3><p class="subheading">Yang perlu disiapkan</p><div style="overflow:auto"><table class="setting-table"><thead><tr><th>Item</th><th>Keterangan</th></tr></thead><tbody id="syarat-list"><?php foreach ($SYARAT as $i => $row): ?><tr><td><input required name="syarat[<?= $i ?>][nama]" value="<?= spmb_admin_e($row[0]) ?>"></td><td><input name="syarat[<?= $i ?>][ket]" value="<?= spmb_admin_e($row[1]) ?>"></td></tr><?php endforeach; ?></tbody></table></div><button class="button add-row" type="button" data-add-row="syarat-list" data-template="syarat-template">+ Tambah syarat berkas</button><p class="subheading">Syarat untuk mendaftar</p><div class="settings-grid" id="mts-requirements-list"><?php foreach ($PERSYARATAN_MTS as $i => $requirement): ?><div class="field"><label>Syarat <?= $i + 1 ?></label><input required name="mts_requirements[<?= $i ?>]" value="<?= spmb_admin_e($requirement) ?>"></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="mts-requirements-list" data-template="mts-requirement-template">+ Tambah syarat pendaftaran</button><p class="subheading">Rincian biaya MTs</p><div style="overflow:auto"><table class="setting-table"><thead><tr><th>Komponen</th><th>Nominal</th><th>Catatan</th></tr></thead><tbody id="mts-costs-list"><?php foreach ($RINCIAN_BIAYA_MTS as $i => $cost): ?><tr><td><input required name="mts_costs[<?= $i ?>][0]" value="<?= spmb_admin_e($cost[0]) ?>"></td><td><input required type="number" min="0" name="mts_costs[<?= $i ?>][1]" value="<?= (int) $cost[1] ?>"></td><td><input name="mts_costs[<?= $i ?>][2]" value="<?= spmb_admin_e($cost[2]) ?>"></td></tr><?php endforeach; ?></tbody></table></div><button class="button add-row" type="button" data-add-row="mts-costs-list" data-template="mts-cost-template">+ Tambah rincian biaya</button></div>
@@ -305,6 +498,8 @@ $username = 'Admin';
 
       var pageTabs = Array.prototype.slice.call(document.querySelectorAll('[data-page-tab]'));
       var pagePanels = Array.prototype.slice.call(document.querySelectorAll('.setting-page'));
+      var settingsForm = document.querySelector('form');
+      var nextRowIndex = Date.now();
       pageTabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
           var pageId = tab.getAttribute('data-page-tab');
@@ -318,6 +513,13 @@ $username = 'Admin';
           });
         });
       });
+
+      settingsForm.addEventListener('invalid', function (event) {
+        var panel = event.target.closest('.setting-page');
+        if (!panel || !panel.hidden) return;
+        var tab = document.querySelector('[data-page-tab="' + panel.id + '"]');
+        if (tab) tab.click();
+      }, true);
 
       function rowTemplate(template, index) {
         if (template === 'wave-template') {
@@ -384,7 +586,7 @@ $username = 'Admin';
         if (list) Array.prototype.forEach.call(list.children, function (item) { addDeleteButton(list, item); });
         button.addEventListener('click', function () {
           if (!list) return;
-          var index = list.children.length;
+          var index = nextRowIndex++;
           list.insertAdjacentHTML('beforeend', rowTemplate(button.dataset.template, index));
           addDeleteButton(list, list.lastElementChild);
           var newWhatsappNumber = list.lastElementChild.querySelector('[data-whatsapp-number]');
@@ -415,12 +617,13 @@ $username = 'Admin';
   <header class="top">
     <div class="top-in">
       <a class="brand" href="spmb_admin.php"><span class="mark">SP</span><span><b>SPMB Admin</b><small><?= spmb_admin_e($SITE['singkat']) ?></small></span></a>
-      <nav class="nav" aria-label="Navigasi admin"><a class="active" href="spmb_admin.php">Data SPMB</a><a href="spmb_admin.php?tab=settings">Pengaturan</a><a href="index.php" target="_blank" rel="noopener">Beranda</a><a href="gelombang.php" target="_blank" rel="noopener">Gelombang</a><a href="alur.php" target="_blank" rel="noopener">Alur &amp; Syarat</a><a href="biaya.php" target="_blank" rel="noopener">Biaya</a><a href="pembayaran.php" target="_blank" rel="noopener">Pembayaran</a></nav>
+      <nav class="nav" aria-label="Navigasi admin"><a class="active" href="spmb_admin.php">Data SPMB</a><a href="spmb_admin.php?tab=settings">Pengaturan</a><a href="dashboard_admin.php">Dashboard Admin</a><a href="../index.php" target="_blank" rel="noopener">Beranda</a></nav>
       <span class="user"><?= spmb_admin_e($username) ?></span>
     </div>
   </header>
   <main class="main">
-    <div class="heading"><div><h1>Pengelolaan SPMB</h1><p>Kelola data pendaftaran calon santri dan dokumen pendukung.</p></div><a class="button light" href="pendaftaran.php" target="_blank" rel="noopener">Buka formulir pendaftaran</a></div>
+    <div class="heading"><div><h1>Pengelolaan SPMB</h1><p>Kelola data pendaftaran calon santri dan dokumen pendukung.</p></div><a class="button light" href="spmb_admin.php?tab=settings">Pengaturan SPMB</a></div>
+    <?php if ($message !== ''): ?><div class="notice<?= $messageError ? ' error' : '' ?>"><?= spmb_admin_e($message) ?></div><?php endif; ?>
     <section class="summary">
       <div class="summary-card"><b><?= count($registrations) ?></b><span>Pendaftar ditemukan</span></div>
       <div class="summary-card"><b><?= $totalDocuments ?></b><span>Dokumen tersimpan</span></div>
@@ -429,9 +632,9 @@ $username = 'Admin';
     <section class="panel">
       <div class="panel-head"><h2>Data pendaftaran</h2><span class="meta">Terbaru ditampilkan lebih dulu</span></div>
       <form class="filter" method="get"><input type="search" name="q" value="<?= spmb_admin_e($query) ?>" placeholder="Cari nomor pendaftaran..."><button class="button" type="submit">Cari</button><?php if ($query !== ''): ?><a class="button light" href="spmb_admin.php">Reset</a><?php endif; ?></form>
-      <?php if (!$registrations): ?><div class="empty">Belum ada data pendaftaran yang cocok.</div><?php else: ?>
+      <?php if (!$registrations): ?><div class="empty">Belum ada data pendaftaran yang cocok. Dokumen harus berada di folder privat <code>admin/data/pendaftaran/ID-PENDAFTAR/</code>.</div><?php else: ?>
       <div class="table-wrap"><table class="table"><thead><tr><th>Nomor pendaftaran</th><th>Dokumen</th><th>Waktu masuk</th><th>Aksi</th></tr></thead><tbody>
-      <?php foreach ($registrations as $item): ?><tr><td><div class="id"><?= spmb_admin_e($item['id']) ?></div><div class="meta"><?= count($item['files']) ?> file</div></td><td><div class="files"><?php foreach ($item['files'] as $file): ?><a class="file" href="?registration=<?= rawurlencode($item['id']) ?>&download=<?= rawurlencode($file['name']) ?>" target="_blank" rel="noopener"><?= spmb_admin_e($file['name']) ?> · <?= spmb_file_size($file['size']) ?></a><?php endforeach; ?></div></td><td class="meta"><?= spmb_admin_e(date('d M Y, H:i', $item['time'])) ?></td><td><form method="post" onsubmit="return confirm('Hapus semua data <?= spmb_admin_e($item['id']) ?>?')"><input type="hidden" name="delete" value="1"><input type="hidden" name="registration" value="<?= spmb_admin_e($item['id']) ?>"><button class="delete" type="submit">Hapus</button></form></td></tr><?php endforeach; ?>
+      <?php foreach ($registrations as $item): ?><tr><td><div class="id"><?= spmb_admin_e($item['id']) ?></div><div class="meta"><?= count($item['files']) ?> file</div></td><td><div class="files"><?php foreach ($item['files'] as $file): ?><a class="file" href="?registration=<?= rawurlencode($item['id']) ?>&download=<?= rawurlencode($file['name']) ?>" target="_blank" rel="noopener"><?= spmb_admin_e($file['name']) ?> · <?= spmb_file_size($file['size']) ?></a><?php endforeach; ?></div></td><td class="meta"><?= spmb_admin_e(date('d M Y, H:i', $item['time'])) ?></td><td><form method="post" onsubmit="return confirm('Hapus semua data <?= spmb_admin_e($item['id']) ?>?')"><input type="hidden" name="delete" value="1"><input type="hidden" name="csrf_token" value="<?= spmb_admin_e($csrfToken) ?>"><input type="hidden" name="registration" value="<?= spmb_admin_e($item['id']) ?>"><button class="delete" type="submit">Hapus</button></form></td></tr><?php endforeach; ?>
       </tbody></table></div>
       <?php endif; ?>
     </section>
