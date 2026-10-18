@@ -10,7 +10,7 @@
         "wa_tampil": "081230294589",
         "wa_nama": "Ustaz Fauzi",
         "wa2": "629676947754",
-        "wa2_tampil": "08937981011912",
+        "wa2_tampil": "629676947754",
         "wa2_nama": "rakha",
         "email": "spmb@mtstahfidhroudlotulquran.sch.id",
         "alamat": "Ngampelsari, Kec. Candi, Kabupaten Sidoarjo, Jawa Timur 61271",
@@ -39,7 +39,7 @@
             },
             {
                 "nomor": "629676947754",
-                "tampil": "08937981011912",
+                "tampil": "629676947754",
                 "nama": "rakha"
             }
         ],
@@ -70,13 +70,6 @@
             "selesai": "2027-05-31",
             "potongan": 1000000000,
             "catatan": "Hanya dibuka bila kuota masih tersisa."
-        },
-        {
-            "nama": "Gelombang 4",
-            "mulai": "2028-01-01",
-            "selesai": "2026-10-25",
-            "potongan": 10000000000,
-            "catatan": "melbuo"
         }
     ],
     "BIAYA": {
