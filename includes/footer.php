@@ -66,6 +66,7 @@
         <a href="gelombang.php">Gelombang</a>
         <a href="alur.php">Alur &amp; Syarat</a>
         <a href="biaya.php">Biaya</a>
+        <a href="pembayaran.php">Pembayaran</a>
         <a href="<?= e($SITE['url_profil']) ?>">Situs profil</a>
       </nav>
     </div>

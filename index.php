@@ -159,6 +159,7 @@ include __DIR__ . '/includes/header.php';
 
     <p style="text-align:center;margin-top:2.4rem">
       <a class="tbl tbl-garis" href="alur.php">Lihat alur dan syarat berkas</a>
+      <a class="tbl tbl-garis" href="pembayaran.php" style="margin-left:.5rem">Lihat cara pembayaran</a>
     </p>
   </div>
 </section>

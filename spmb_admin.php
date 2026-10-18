@@ -125,7 +125,7 @@ $username = 'Admin';
   <header class="top">
     <div class="top-in">
       <a class="brand" href="spmb_admin.php"><span class="mark">SP</span><span><b>SPMB Admin</b><small><?= spmb_admin_e($SITE['singkat']) ?></small></span></a>
-      <nav class="nav"><a class="active" href="spmb_admin.php">Data SPMB</a><a href="settings.php">Pengaturan</a><a href="gelombang.php" target="_blank" rel="noopener">Gelombang</a><a href="index.php" target="_blank" rel="noopener">Website</a></nav>
+      <nav class="nav" aria-label="Navigasi admin"><a class="active" href="spmb_admin.php">Data SPMB</a><a href="settings.php">Pengaturan</a><a href="index.php" target="_blank" rel="noopener">Beranda</a><a href="gelombang.php" target="_blank" rel="noopener">Gelombang</a><a href="alur.php" target="_blank" rel="noopener">Alur &amp; Syarat</a><a href="biaya.php" target="_blank" rel="noopener">Biaya</a><a href="pembayaran.php" target="_blank" rel="noopener">Pembayaran</a></nav>
       <span class="user"><?= spmb_admin_e($username) ?></span>
     </div>
   </header>

@@ -18,6 +18,7 @@ $HALAMAN = [
     'gelombang'   => ['Gelombang', 'gelombang.php'],
     'alur'        => ['Alur & Syarat', 'alur.php'],
     'biaya'       => ['Info Biaya SPMB', 'biaya.php'],
+    'pembayaran'  => ['Pembayaran', 'pembayaran.php'],
 ];
 ?>
 <!DOCTYPE html>
