@@ -12,6 +12,82 @@ function spmb_admin_e(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function spmb_admin_nav(string $username): void
+{
+    $menuItems = [
+        ['href' => 'dashboard_admin.php', 'icon' => 'fa-chart-line', 'label' => 'Dashboard'],
+        ['href' => 'statistik_edit.php', 'icon' => 'fa-chart-bar', 'label' => 'Statistik'],
+        ['href' => 'profil_edit.php', 'icon' => 'fa-school', 'label' => 'Profil'],
+        ['href' => 'pegawai_edit.php', 'icon' => 'fa-users', 'label' => 'Guru/Staff'],
+        ['href' => 'berita_edit.php', 'icon' => 'fa-newspaper', 'label' => 'Berita'],
+        ['href' => 'prestasi_edit.php', 'icon' => 'fa-trophy', 'label' => 'Prestasi'],
+        ['href' => 'galeri_edit.php', 'icon' => 'fa-images', 'label' => 'Galeri'],
+        ['href' => 'spmb_admin.php', 'icon' => 'fa-envelope', 'label' => 'SPMB', 'active' => true],
+    ];
+    ?>
+    <nav class="bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-white flex items-center">
+              <i class="fas fa-graduation-cap mr-2"></i>
+              Admin Panel
+            </h1>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <?php foreach ($menuItems as $item): ?>
+                <a href="<?= spmb_admin_e($item['href']) ?>" class="<?= !empty($item['active']) ? 'bg-green-800 text-white' : 'text-green-100 hover:bg-green-800 hover:text-white' ?> block px-3 py-2 rounded-md text-base font-medium">
+                  <i class="fas <?= spmb_admin_e($item['icon']) ?> mr-2"></i><?= spmb_admin_e($item['label']) ?>
+                </a>
+              <?php endforeach; ?>
+              <a href="../logout.php" class="text-green-100 hover:bg-green-800 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+              </a>
+            </div>
+          </div>
+          <div class="flex items-center justify-end space-x-4">
+            <div class="flex items-center text-green-100">
+              <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-2">
+                <i class="fas fa-user text-white text-sm"></i>
+              </div>
+              <span class="text-sm font-medium"><?= spmb_admin_e($username) ?></span>
+            </div>
+          </div>
+          <div class="md:hidden">
+            <button id="mobileMenuBtn" type="button" class="text-green-100 hover:text-white p-2" aria-label="Buka menu" aria-expanded="false">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="mobileMenu" class="md:hidden hidden bg-green-700">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <?php foreach ($menuItems as $item): ?>
+            <?php $mobileLabel = $item['label'] === 'Profil' ? 'Profil Sekolah' : $item['label']; ?>
+            <a href="<?= spmb_admin_e($item['href']) ?>" class="<?= !empty($item['active']) ? 'bg-green-800 text-white' : 'text-green-100 hover:bg-green-800 hover:text-white' ?> block px-3 py-2 rounded-md text-base font-medium">
+              <i class="fas <?= spmb_admin_e($item['icon']) ?> mr-2"></i><?= spmb_admin_e($mobileLabel) ?>
+            </a>
+          <?php endforeach; ?>
+          <div class="border-t border-green-600 pt-4">
+            <a href="../logout.php" class="text-red-300 hover:bg-red-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+              <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <script>
+      document.getElementById('mobileMenuBtn').addEventListener('click', function () {
+        var menu = document.getElementById('mobileMenu');
+        var isExpanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+        menu.classList.toggle('hidden');
+      });
+    </script>
+    <?php
+}
+
 function spmb_setting_text(array $source, string $key, string $default = ''): string
 {
     $value = $source[$key] ?? $default;
@@ -438,21 +514,14 @@ $username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Adm
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pengaturan SPMB - <?= spmb_admin_e($SITE['singkat']) ?></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root{--green:#15803d;--dark:#14532d;--mint:#f0fdf4;--ink:#14251d;--muted:#64748b;--line:#e2e8f0;--red:#b91c1c}*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:var(--ink);font:14px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}a{text-decoration:none;color:inherit}.top{background:linear-gradient(110deg,#166534,#15803d);color:#fff;box-shadow:0 3px 14px #064e3b22}.top-in,.main{width:min(1180px,calc(100% - 32px));margin:auto}.top-in{min-height:70px;display:flex;align-items:center;gap:20px}.brand{display:flex;align-items:center;gap:10px;margin-right:auto}.mark{width:39px;height:39px;border-radius:11px;background:#fff;color:var(--green);display:grid;place-items:center;font-weight:900}.brand b{display:block;font-size:1.08rem}.brand small{color:#bbf7d0}.nav{display:flex;gap:5px;flex-wrap:wrap}.nav a{padding:9px 11px;border-radius:8px;color:#dcfce7;font-weight:700}.nav a:hover,.nav .active{background:#14532d;color:#fff}.user{color:#dcfce7}.main{padding:30px 0 55px}.heading{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:21px}.heading h1{font-size:1.7rem;margin:0}.heading p{margin:5px 0 0;color:var(--muted)}.button{display:inline-block;padding:10px 14px;border:0;border-radius:9px;background:var(--green);color:#fff;font:inherit;font-weight:800;cursor:pointer}.button.light{background:#dcfce7;color:var(--dark)}.button.add-row{padding:7px 11px;margin:5px 0 8px;font-size:.85rem}.button.delete-row{padding:5px 8px;border-radius:7px;background:#fee2e2;color:var(--red);font-size:.78rem;white-space:nowrap}.button.whatsapp-link{padding:6px 9px;background:#dcfce7;color:var(--dark);font-size:.8rem;white-space:nowrap}.panel{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 16px #0f172a08;padding:20px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}.panel h2{font-size:1.1rem;margin:0}.meta,.help{color:var(--muted);font-size:.82rem}.settings-tabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--line);overflow-x:auto}.settings-tab{border:0;border-bottom:3px solid transparent;background:transparent;padding:11px 14px;color:var(--muted);font:inherit;font-weight:800;white-space:nowrap;cursor:pointer}.settings-tab:hover,.settings-tab.active{color:var(--dark);border-bottom-color:var(--green);background:var(--mint)}.setting-page[hidden]{display:none}.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.option-card{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:14px;border:1px solid #bbf7d0;border-radius:10px;background:var(--mint);grid-column:1/-1}.option-card .delete-row{grid-column:1/-1;justify-self:start}.field{display:flex;flex-direction:column;gap:5px}.field label,.subheading{font-weight:800}.field input,.field textarea{width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.field textarea{min-height:58px;resize:vertical}.setting-block{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}.setting-block h3{font-size:1rem;margin:0 0 10px}.setting-table{width:100%;border-collapse:collapse}.setting-table th,.setting-table td{text-align:left;padding:6px;vertical-align:top}.setting-table th{font-size:.75rem;color:var(--muted)}.setting-table input{min-width:100px}.notice{padding:11px 14px;background:#dcfce7;color:var(--dark);border-radius:9px;margin-bottom:18px}.notice.error{background:#fef2f2;color:var(--red)}.save-settings{margin-top:20px}@media(max-width:720px){.top-in{width:calc(100% - 22px)}.nav{display:none}.user{font-size:.8rem}.main{width:calc(100% - 22px);padding-top:22px}.heading{align-items:flex-start;flex-direction:column}.panel{padding:14px}.settings-grid{grid-template-columns:1fr}.option-card{grid-template-columns:1fr}.setting-table{display:block;overflow:auto;white-space:nowrap}}
   </style>
 </head>
 <body data-admin-tab="settings">
-  <header class="top"><div class="top-in">
-    <a class="brand" href="spmb_admin.php"><span class="mark">SP</span><span><b>SPMB Admin</b><small><?= spmb_admin_e($SITE['singkat']) ?></small></span></a>
-    <nav class="nav" aria-label="Navigasi admin">
-      <a href="spmb_admin.php">Data SPMB</a>
-      <a class="active" href="spmb_admin.php?tab=settings">Pengaturan</a>
-      <a href="../index.php" target="_blank" rel="noopener">Beranda</a>
-      <a href="dashboard_admin.php">Dashboard Admin</a>
-    </nav>
-    <span class="user"><?= spmb_admin_e($username) ?></span>
-  </div></header>
+  <?php spmb_admin_nav($username); ?>
   <main class="main">
     <div class="heading"><div><h1>Pengaturan halaman website</h1><p>Menu website sudah dipisah berdasarkan halaman agar informasi lebih ringkas.</p></div><a class="button light" href="spmb_admin.php">Kembali ke data SPMB</a></div>
     <?php if ($message !== ''): ?><div class="notice<?= $messageError ? ' error' : '' ?>"><?= spmb_admin_e($message) ?></div><?php endif; ?>
@@ -609,18 +678,14 @@ $username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Adm
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPMB Admin - <?= spmb_admin_e($SITE['singkat']) ?></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root{--green:#15803d;--dark:#14532d;--mint:#f0fdf4;--ink:#14251d;--muted:#64748b;--line:#e2e8f0;--red:#b91c1c}*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:var(--ink);font:14px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}a{text-decoration:none;color:inherit}.top{background:linear-gradient(110deg,#166534,#15803d);color:#fff;box-shadow:0 3px 14px #064e3b22}.top-in,.main{width:min(1180px,calc(100% - 32px));margin:auto}.top-in{min-height:70px;display:flex;align-items:center;gap:20px}.brand{display:flex;align-items:center;gap:10px;margin-right:auto}.mark{width:39px;height:39px;border-radius:11px;background:#fff;color:var(--green);display:grid;place-items:center;font-weight:900}.brand b{display:block;font-size:1.08rem}.brand small{color:#bbf7d0}.nav{display:flex;gap:5px}.nav a{padding:9px 11px;border-radius:8px;color:#dcfce7;font-weight:700}.nav a:hover,.nav .active{background:#14532d;color:#fff}.user{color:#dcfce7}.main{padding:30px 0 55px}.heading{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:21px}.heading h1{font-size:1.7rem;margin:0}.heading p{margin:5px 0 0;color:var(--muted)}.button{display:inline-block;padding:10px 14px;border-radius:9px;background:var(--green);color:#fff;font-weight:800}.button.light{background:#dcfce7;color:var(--dark)}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:21px}.summary-card,.panel{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 16px #0f172a08}.summary-card{padding:18px}.summary-card b{display:block;color:var(--green);font-size:1.65rem}.summary-card span{color:var(--muted)}.panel{padding:20px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}.panel h2{font-size:1.1rem;margin:0}.filter{display:flex;gap:9px;margin-bottom:17px}.filter input,.filter select{margin:0;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit;background:#fff}.filter input{flex:1;min-width:180px}.filter button{width:auto;padding:10px 17px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:690px}.table th,.table td{text-align:left;padding:12px 9px;border-bottom:1px solid #f1f5f9;vertical-align:top}.table th{font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.id{font-weight:850;color:var(--green);white-space:nowrap}.meta{color:var(--muted);font-size:.8rem}.files{display:flex;flex-wrap:wrap;gap:5px;max-width:380px}.file{padding:4px 7px;border-radius:6px;background:#f1f5f9;font-size:.75rem}.file:hover{background:#dcfce7;color:var(--dark)}.delete{border:0;padding:7px 9px;border-radius:7px;background:#fee2e2;color:var(--red);font:inherit;font-weight:700;cursor:pointer}.notice{padding:11px 14px;background:#dcfce7;color:var(--dark);border-radius:9px;margin-bottom:18px}.notice.error{background:#fef2f2;color:var(--red)}.wave{margin-top:20px;padding:15px;border:1px solid #bbf7d0;background:var(--mint);border-radius:10px}.wave strong{color:var(--dark)}.empty{text-align:center;padding:35px;color:var(--muted)}    .footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:22px}.settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.field{display:flex;flex-direction:column;gap:5px}.field label,.subheading{font-weight:800}.field input,.field textarea{width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.field textarea{min-height:58px;resize:vertical}.setting-block{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}.setting-block h3{font-size:1rem;margin:0 0 10px}.setting-table{width:100%;border-collapse:collapse}.setting-table th,.setting-table td{text-align:left;padding:6px;vertical-align:top}.setting-table th{font-size:.75rem;color:var(--muted)}.setting-table input{min-width:100px}.save-settings{margin-top:20px}.help{color:var(--muted);font-size:.82rem}.remove-row{border:0;background:#fee2e2;color:var(--red);border-radius:6px;padding:7px;cursor:pointer}@media(max-width:720px){.top-in{width:calc(100% - 22px)}.nav{display:none}.user{font-size:.8rem}.main{width:calc(100% - 22px);padding-top:22px}.heading{align-items:flex-start;flex-direction:column}.summary{grid-template-columns:1fr}.panel{padding:14px}.filter{flex-wrap:wrap}.filter input{min-width:100%}.settings-grid{grid-template-columns:1fr}.setting-table{display:block;overflow:auto;white-space:nowrap}}
   </style>
 </head>
 <body>
-  <header class="top">
-    <div class="top-in">
-      <a class="brand" href="spmb_admin.php"><span class="mark">SP</span><span><b>SPMB Admin</b><small><?= spmb_admin_e($SITE['singkat']) ?></small></span></a>
-      <nav class="nav" aria-label="Navigasi admin"><a class="active" href="spmb_admin.php">Data SPMB</a><a href="spmb_admin.php?tab=settings">Pengaturan</a><a href="dashboard_admin.php">Dashboard Admin</a><a href="../index.php" target="_blank" rel="noopener">Beranda</a></nav>
-      <span class="user"><?= spmb_admin_e($username) ?></span>
-    </div>
-  </header>
+  <?php spmb_admin_nav($username); ?>
   <main class="main">
     <div class="heading"><div><h1>Pengelolaan SPMB</h1><p>Kelola data pendaftaran calon santri dan dokumen pendukung.</p></div><a class="button light" href="spmb_admin.php?tab=settings">Pengaturan SPMB</a></div>
     <?php if ($message !== ''): ?><div class="notice<?= $messageError ? ' error' : '' ?>"><?= spmb_admin_e($message) ?></div><?php endif; ?>
