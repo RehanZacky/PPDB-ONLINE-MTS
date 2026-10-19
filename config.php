@@ -482,3 +482,10 @@ function total_biaya(array $komponen): int
 {
     return array_sum(array_column($komponen, 1));
 }
+
+/** Total biaya awal dengan opsi override manual dari pengaturan admin. */
+function total_biaya_awal(array $jalur): int
+{
+    $manual = max(0, (int) ($jalur['total_manual'] ?? 0));
+    return $manual > 0 ? $manual : total_biaya((array) ($jalur['awal'] ?? []));
+}

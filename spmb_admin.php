@@ -245,8 +245,8 @@ $SITE = [
 ];
 $GELOMBANG = [];
 $BIAYA = [
-    'mukim' => ['label' => 'Santri mukim', 'ket' => '', 'awal' => [], 'bulanan' => []],
-    'nonmukim' => ['label' => 'Santri non-mukim', 'ket' => '', 'awal' => [], 'bulanan' => []],
+  'mukim' => ['label' => 'Santri mukim', 'ket' => '', 'total_manual' => 0, 'awal' => [], 'bulanan' => []],
+  'nonmukim' => ['label' => 'Santri non-mukim', 'ket' => '', 'total_manual' => 0, 'awal' => [], 'bulanan' => []],
 ];
 $SYARAT = [];
 $PERSYARATAN_MTS = [];
@@ -301,6 +301,7 @@ foreach (['mukim', 'nonmukim'] as $kind) {
         if (!is_scalar($BIAYA[$kind][$field] ?? null)) $BIAYA[$kind][$field] = '';
         else $BIAYA[$kind][$field] = (string) $BIAYA[$kind][$field];
     }
+  $BIAYA[$kind]['total_manual'] = max(0, (int) (is_scalar($BIAYA[$kind]['total_manual'] ?? null) ? $BIAYA[$kind]['total_manual'] : 0));
     foreach (['awal', 'bulanan'] as $section) {
         if (!is_array($BIAYA[$kind][$section] ?? null)) $BIAYA[$kind][$section] = [];
         $BIAYA[$kind][$section] = spmb_setting_rows($BIAYA[$kind][$section]);
@@ -400,6 +401,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         $newCosts[$kind] = [
             'label' => spmb_setting_text($posted, 'label', $current['label']),
             'ket' => spmb_setting_text($posted, 'ket', $current['ket']),
+        'total_manual' => max(0, (int) spmb_setting_text($posted, 'total_manual', (string) $current['total_manual'])),
             'awal' => spmb_setting_rows(is_array($posted['awal'] ?? null) ? $posted['awal'] : []),
             'bulanan' => spmb_setting_rows(is_array($posted['bulanan'] ?? null) ? $posted['bulanan'] : []),
         ];
@@ -551,6 +553,7 @@ $username = (string) ($_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Adm
           <?php foreach (['mukim' => 'Santri mukim', 'nonmukim' => 'Santri non-mukim'] as $kind => $title): ?>
             <h3><?= $title ?></h3><div class="settings-grid"><div class="field"><label>Label</label><input name="biaya[<?= $kind ?>][label]" value="<?= spmb_admin_e($BIAYA[$kind]['label']) ?>"></div><div class="field"><label>Keterangan</label><input name="biaya[<?= $kind ?>][ket]" value="<?= spmb_admin_e($BIAYA[$kind]['ket']) ?>"></div></div>
             <?php foreach (['awal' => 'Biaya awal', 'bulanan' => 'Biaya bulanan'] as $section => $sectionTitle): ?><p class="subheading"><?= $sectionTitle ?></p><div style="overflow:auto"><table class="setting-table"><thead><tr><th>Komponen</th><th>Nominal</th><th>Catatan</th></tr></thead><tbody id="costs-<?= $kind ?>-<?= $section ?>"><?php foreach ($BIAYA[$kind][$section] as $i => $cost): ?><tr><td><input required name="biaya[<?= $kind ?>][<?= $section ?>][<?= $i ?>][0]" value="<?= spmb_admin_e($cost[0]) ?>"></td><td><input required type="number" min="0" name="biaya[<?= $kind ?>][<?= $section ?>][<?= $i ?>][1]" value="<?= (int) $cost[1] ?>"></td><td><input name="biaya[<?= $kind ?>][<?= $section ?>][<?= $i ?>][2]" value="<?= spmb_admin_e($cost[2]) ?>"></td></tr><?php endforeach; ?></tbody></table></div><button class="button add-row" type="button" data-add-row="costs-<?= $kind ?>-<?= $section ?>" data-template="cost-<?= $kind ?>-<?= $section ?>-template">+ Tambah <?= strtolower($sectionTitle) ?></button><?php endforeach; ?>
+            <div class="field"><label for="total-manual-<?= $kind ?>">Total manual biaya awal (opsional)</label><input id="total-manual-<?= $kind ?>" type="number" min="0" name="biaya[<?= $kind ?>][total_manual]" value="<?= (int) $BIAYA[$kind]['total_manual'] ?>"><span class="help">Isi untuk mengganti total otomatis dari komponen biaya awal. Kosongkan atau isi 0 untuk memakai total otomatis.</span></div>
           <?php endforeach; ?>
           <p class="subheading">Pilihan rekening</p><div class="settings-grid" id="rekening-list"><?php foreach ($SITE['rekening_options'] as $i => $account): ?><div class="option-card"><div class="field"><label>Nama bank</label><input required name="rekening_options[<?= $i ?>][bank]" value="<?= spmb_admin_e((string) ($account['bank'] ?? '')) ?>"></div><div class="field"><label>Nomor rekening</label><input required name="rekening_options[<?= $i ?>][nomor]" value="<?= spmb_admin_e((string) ($account['nomor'] ?? '')) ?>"></div><div class="field"><label>Nama pemilik rekening</label><input required name="rekening_options[<?= $i ?>][nama]" value="<?= spmb_admin_e((string) ($account['nama'] ?? '')) ?>"></div></div><?php endforeach; ?></div><button class="button add-row" type="button" data-add-row="rekening-list" data-template="rekening-template">+ Tambah rekening</button>
         </div>

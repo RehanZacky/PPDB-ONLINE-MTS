@@ -88,7 +88,7 @@ include __DIR__ . '/includes/header.php';
               <?php endforeach; ?>
               <div class="rincian-baris rincian-total">
                 <span>Total</span>
-                <b><?= e(rp(total_biaya($BIAYA[$kunci]['awal']))) ?></b>
+                <b><?= e(rp(total_biaya_awal($BIAYA[$kunci]))) ?></b>
               </div>
             </div>
           </div>

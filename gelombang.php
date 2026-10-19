@@ -98,8 +98,8 @@ include __DIR__ . '/includes/header.php';
           <tbody>
             <?php foreach ($GELOMBANG as $g): ?>
               <?php
-              $mukim = total_biaya($BIAYA['mukim']['awal']) - $g['potongan'];
-              $non   = total_biaya($BIAYA['nonmukim']['awal']) - $g['potongan'];
+              $mukim = total_biaya_awal($BIAYA['mukim']) - $g['potongan'];
+              $non   = total_biaya_awal($BIAYA['nonmukim']) - $g['potongan'];
               ?>
               <tr>
                 <td>
