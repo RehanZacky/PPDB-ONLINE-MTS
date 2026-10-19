@@ -489,3 +489,10 @@ function total_biaya_awal(array $jalur): int
     $manual = max(0, (int) ($jalur['total_manual'] ?? 0));
     return $manual > 0 ? $manual : total_biaya((array) ($jalur['awal'] ?? []));
 }
+
+/** Total biaya bulanan dengan opsi override manual dari pengaturan admin. */
+function total_biaya_bulanan(array $jalur): int
+{
+    $manual = max(0, (int) ($jalur['total_bulanan_manual'] ?? 0));
+    return $manual > 0 ? $manual : total_biaya((array) ($jalur['bulanan'] ?? []));
+}

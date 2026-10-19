@@ -92,7 +92,7 @@ include __DIR__ . '/includes/header.php';
               </div>
             </div>
           </div>
-          <div class="kotak-bulanan">Biaya bulanan: <?= e(rp(total_biaya($BIAYA[$kunci]['bulanan']))) ?></div>
+          <div class="kotak-bulanan">Biaya bulanan: <?= e(rp(total_biaya_bulanan($BIAYA[$kunci]))) ?></div>
         </article>
       <?php endforeach; ?>
     </div>
