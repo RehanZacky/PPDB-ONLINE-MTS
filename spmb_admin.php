@@ -115,7 +115,7 @@ function spmb_setting_rows(array $rows): array
 function wa_nomor(string $number): string
 {
     $number = preg_replace('/\D+/', '', $number) ?? '';
-    return str_starts_with($number, '0') ? '62' . substr($number, 1) : $number;
+    return $number !== '' && $number[0] === '0' ? '62' . substr($number, 1) : $number;
 }
 
 function spmb_admin_wa_link(string $number): string

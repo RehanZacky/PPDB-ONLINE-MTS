@@ -36,7 +36,7 @@ spmb/
 4. Tambahkan menu SPMB di situs profil, misalnya:
    `<a href="/spmb/">SPMB</a>`
 
-Syarat hosting: PHP 7.4 ke atas. Tidak perlu basis data, tidak perlu composer.
+Syarat hosting: PHP 7.2 ke atas. Tidak perlu basis data, tidak perlu composer.
 
 ## Mengubah data lewat admin
 
