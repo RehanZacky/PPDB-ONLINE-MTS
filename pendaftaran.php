@@ -464,7 +464,7 @@ endif;
         <div class="form-panel">
           <h3>A. Identitas Siswa</h3>
 
-          <?php form_select('program-pondok', 'program_pondok', 'Program pondok', ['Tahfidh', 'Tahfidh & Sekolah']); ?>
+          <?php form_select('program-pondok', 'program_pondok', 'Program pondok', ['Tahfidh', 'Tahfidh & Sekolah', 'santri MI', 'Santri Mts', 'santri non mukim']); ?>
 
           <div class="form-grid form-grid-student-final">
             <div class="field">
